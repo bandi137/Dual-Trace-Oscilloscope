@@ -1,0 +1,1245 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dual-Trace Oscilloscope</title>
+
+<meta name="description" content="Dual-trace oscilloscope simulator with an analog front panel: rotary knobs, dual time base with delayed sweep, Z input, external/line/single triggering, a function generator, live audio input and audio output, right in the browser.">
+<meta property="og:title" content="Dual-Trace Oscilloscope">
+<meta property="og:description" content="Analog oscilloscope simulator with rotary knobs, live microphone/audio input and a function generator you can send to your speakers.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#1b1e21">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<style>
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;font:14px/1.4 system-ui,sans-serif}
+[hidden]{display:none!important}
+</style>
+<!--
+  OSC-2 / FG-2 — dual-trace oscilloscope and function generator simulator
+  Copyright (C) 2026 András Sümegi
+
+  This program is free software: you can redistribute it and/or modify it under the terms of the
+  GNU General Public License as published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+  even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  General Public License for more details: <https://www.gnu.org/licenses/>.
+
+  SPDX-License-Identifier: GPL-3.0-or-later
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* One deliberately dark "workbench" world: beige instrument cases, navy silkscreen, black knurled knobs. */
+:root{
+  color-scheme:dark;
+  --bench:#1b1e21; --bench-2:#25292d; --bench-ink:#dfe2e4; --bench-soft:#9aa1a8;
+  --page-bg:radial-gradient(120% 80% at 50% 0%,var(--bench-2),var(--bench) 70%);
+  --card-bg:#24282c; --card-line:#3a4046; --card-ink:#dfe2e4; --card-soft:#9aa1a8; --st-err:#ff9b85; --st-ok:#8fe0b0;
+  --case:#c7c1b2; --case-2:#aea897; --face:#e9e5d9; --rule:#bdb7a7;
+  --silk:#1d2a48; --silk-soft:#4f5a74;
+  --ch1:#2b8a53; --ch2:#b4740c; --red:#c8402c; --focus:#3b7dd8;
+  --f-label:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --f-body:"Barlow",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+html,body{min-height:100%}
+/* Embedded in another site (?embed): the host page's own background shows through; lettering follows it. */
+:root.embed{--page-bg:transparent;--bench-ink:#1d2433;--bench-soft:#586072;--st-err:#b4391f;--st-ok:#1f7a4a;color-scheme:light}
+:root.embed.embed-dark{--bench-ink:#dfe2e4;--bench-soft:#9aa1a8;--st-err:#ff9b85;--st-ok:#8fe0b0;color-scheme:dark}
+:root.embed body{padding-inline:8px;padding-block:8px}
+:root.embed:not(.embed-dark) .case{box-shadow:0 6px 16px rgba(0,0,0,.16),inset 0 1px 0 rgba(255,255,255,.55),inset 0 -2px 0 rgba(0,0,0,.18)}   /* lighter shadow on a light page */
+body{background:var(--page-bg);color:var(--bench-ink);font-family:var(--f-body);
+  padding-inline:16px;padding-block:20px}
+header,.bench,footer{max-width:1240px;margin-inline:auto}
+header{margin-bottom:16px;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 16px}
+h1{font-family:var(--f-label);font-weight:700;font-size:1.6rem;letter-spacing:.06em;text-transform:uppercase;margin:0;text-wrap:balance}
+header p{margin:0;color:var(--bench-soft);font-size:.92rem}
+.bench{display:flex;flex-direction:column;gap:18px}
+
+/* ---- Instrument case ---- */
+.case{background:linear-gradient(#d4cec0,var(--case) 30%,var(--case-2));border-radius:16px;padding:11px;
+  box-shadow:0 22px 44px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.55),inset 0 -2px 0 rgba(0,0,0,.18)}
+.face{--sc:radial-gradient(circle,#9b968a 0 2.2px,#6c685f 2.6px 3.4px,transparent 3.8px);
+  background:var(--sc) 9px 9px/8px 8px no-repeat,var(--sc) right 9px top 9px/8px 8px no-repeat,
+             var(--sc) 9px bottom 9px/8px 8px no-repeat,var(--sc) right 9px bottom 9px/8px 8px no-repeat,var(--face);
+  border-radius:7px;padding:22px 20px;color:var(--silk);box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
+.scope-face{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:22px}
+.trig-sec{grid-column:1/-1}                     /* wide: a full-width band under screen and controls */
+.trig-sec .row{display:contents}                /* every trigger control is spaced evenly along the band */
+.trig-sec .sec-in{justify-content:space-evenly}
+@media (max-width:1279px){.scope-face{grid-template-columns:1fr}   /* below this the two channels no longer fit side by side */
+  .screen-col{order:1;width:100%;max-width:760px;justify-self:center}.trig-sec{order:2}.ctl{order:3}}   /* narrow: trigger straight under the screen */
+@media (max-width:480px){.face{padding:18px 12px}.case{padding:7px}}
+
+/* ---- Screen ---- */
+.screen-col{display:flex;flex-direction:column;gap:22px;min-width:0}
+.bezel{background:linear-gradient(#2c3034,#1c1f22);border-radius:16px;padding:16px;
+  box-shadow:inset 0 2px 8px rgba(0,0,0,.7),0 1px 0 rgba(255,255,255,.7)}
+.crt{position:relative;aspect-ratio:10/8;max-width:100%;border-radius:14px/16px;overflow:hidden;background:#050c0a;box-shadow:inset 0 0 50px rgba(0,0,0,.95)}
+.crt canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.glass{position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+  background:radial-gradient(110% 80% at 25% 8%,rgba(255,255,255,.075),transparent 42%),radial-gradient(ellipse at center,transparent 58%,rgba(0,0,0,.6) 100%)}
+.under{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:14px 18px}
+.under .grpk{display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap}
+.plate{font-family:var(--f-label);color:var(--silk);line-height:1.05;text-align:right}
+.plate b{display:block;font-size:1.25rem;letter-spacing:.14em}
+.plate span{font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--silk-soft)}
+
+/* ---- Control sections ---- */
+.ctl{display:grid;grid-template-columns:1fr 1fr;gap:22px 14px;align-content:start;min-width:0}
+@media (max-width:600px){.ctl{grid-template-columns:1fr}}
+.sec{position:relative;border:1.5px solid var(--silk);border-radius:7px;padding:20px 10px 12px;min-width:0}
+.sec.full{grid-column:1/-1}
+.sec-t{position:absolute;top:-.62em;left:12px;background:var(--face);padding:0 6px;font:700 .82rem/1 var(--f-label);letter-spacing:.2em;text-transform:uppercase;color:var(--silk);
+  display:flex;align-items:center;gap:8px}
+.sec-in{display:flex;flex-wrap:wrap;justify-content:space-around;align-items:flex-end;gap:16px 12px}
+.chb{display:flex;flex-direction:column;align-items:center;gap:10px}
+.cht{font:700 .9rem/1 var(--f-label);letter-spacing:.16em;padding-bottom:3px;border-bottom:3px solid}
+.row{display:flex;gap:12px;align-items:flex-end;justify-content:center;flex-wrap:wrap}
+.chb .row{gap:7px}
+
+.nm{font:600 .7rem/1.1 var(--f-label);letter-spacing:.12em;text-transform:uppercase;color:var(--silk);text-align:center;white-space:nowrap}
+
+/* ---- Rotary knob ---- */
+.kn{display:flex;flex-direction:column;align-items:center;gap:3px;--a:0deg}
+.kn-dial{position:relative;width:calc(var(--sz) + 2*var(--pad));height:calc(var(--sz) + 2*var(--pad))}
+.kn-scale{position:absolute;inset:0;overflow:visible;stroke:var(--silk)}
+.kn-lab{position:absolute;transform:translate(-50%,-50%);font:600 9.5px/1 var(--f-label);color:var(--silk-soft);white-space:nowrap;cursor:pointer;user-select:none;padding:1px 2px;border-radius:3px}
+.kn-lab:hover{color:var(--silk)}
+.kn-lab.u2{color:#2a64a8}
+.kn-lab.on{color:var(--red);font-weight:700}
+.kn.dense .kn-lab{font-size:8.5px;padding:0 1px}
+.kn-box{display:flex;align-items:center;justify-content:center;height:var(--box)}  /* common box: knob axes on one line */
+.row.axis{align-items:flex-start;flex-basis:100%;justify-content:space-around;gap:10px}
+.nm .u2{color:#2a64a8}
+.nm small{display:block;text-transform:none;font-size:.62rem;letter-spacing:.1em;margin-top:2px;color:var(--silk-soft)}
+.kn-lab svg{display:block;width:17px;height:10px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linejoin:round;stroke-linecap:round}
+.kn-unit{position:absolute;transform:translate(-50%,-50%);font:700 9px/1 var(--f-label);letter-spacing:.06em;color:var(--face);background:var(--silk);padding:1.5px 3px;border-radius:2px;pointer-events:none}
+.kn-cap{position:absolute;left:var(--pad);top:var(--pad);width:var(--sz);height:var(--sz);border-radius:50%;cursor:grab;touch-action:none;
+  box-shadow:0 5px 8px rgba(0,0,0,.42),0 1px 2px rgba(0,0,0,.6)}
+.kn-cap.drag{cursor:grabbing}
+.kn-cap:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
+.kn-rot,.kn-ptr{position:absolute;inset:0;border-radius:50%;transform:rotate(var(--a));pointer-events:none}
+.kn-rot{background:repeating-conic-gradient(#111214 0deg 5deg,#2c2f33 5deg 10deg)}
+.kn-face{position:absolute;inset:14%;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle at 38% 28%,#62676c 0%,#36393d 42%,#1b1d20 100%);
+  box-shadow:0 0 0 1px rgba(0,0,0,.75),0 0 0 3px var(--ring,transparent),inset 0 1px 1px rgba(255,255,255,.2)}
+.kn-ptr::after{content:"";position:absolute;left:50%;top:6%;width:3px;height:38%;margin-left:-1.5px;border-radius:2px;background:#f4f0e4;box-shadow:0 0 1px rgba(0,0,0,.7)}
+.kn.big .kn-face{background:radial-gradient(circle at 38% 28%,#f4f4f2 0%,#bfc2c5 40%,#7d8288 100%)}
+.kn.big .kn-ptr::after{background:var(--red);width:4px;margin-left:-2px;height:44%;top:3%}
+.kn-val{position:absolute;left:50%;bottom:calc(100% - var(--pad) + 6px);transform:translateX(-50%);background:var(--silk);color:#fff;
+  font:500 11px/1.3 var(--f-mono);padding:2px 7px;border-radius:4px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s;z-index:5}
+.kn.show .kn-val{opacity:1}
+@media (hover:hover){.kn-cap:hover~.kn-val{opacity:1}}
+
+/* ---- Toggle (lever) switch ---- */
+.tg{display:flex;flex-direction:column;align-items:center;gap:5px}
+.tg-in{display:flex;gap:5px;height:var(--h)}
+.tg-slot{position:relative;width:16px;height:100%;border-radius:8px;border:0;padding:0;cursor:pointer;
+  background:linear-gradient(90deg,#8f8a7d,#d7d3c8 50%,#8f8a7d);box-shadow:inset 0 1px 3px rgba(0,0,0,.55)}
+.tg-slot:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
+.tg-slot::before{content:"";position:absolute;inset:-5px -9px}   /* larger, invisible hit area around the slot */
+.tg-lever{position:absolute;left:50%;width:15px;height:15px;margin:-7.5px 0 0 -7.5px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#fff,#b9bcc0 45%,#62666c);box-shadow:0 2px 4px rgba(0,0,0,.55);transition:top .08s;pointer-events:none}
+.tg-opts{position:relative;width:var(--w,3.4em)}
+.tg-o{position:absolute;left:0;transform:translateY(-50%);background:none;border:0;padding:1px 2px;cursor:pointer;
+  font:600 .7rem/1 var(--f-label);letter-spacing:.06em;color:var(--silk-soft);white-space:nowrap}
+.tg-o.on{color:var(--red);font-weight:700}
+.tg-o.na{opacity:.38;text-decoration:line-through;text-decoration-thickness:1px}   /* position not available in this view */
+.tg{position:relative}
+.tg-note{position:absolute;top:100%;left:50%;margin-top:6px;width:max-content;max-width:210px;z-index:20;
+  background:var(--silk);color:#fff;font:500 .74rem/1.35 var(--f-body);padding:6px 9px;border-radius:5px;box-shadow:0 4px 10px rgba(0,0,0,.3);
+  text-align:left;white-space:normal;opacity:0;pointer-events:none;transition:opacity .15s;transform:translateX(calc(-50% + var(--dx,0px)))}
+.tg-note.show{opacity:1}
+
+/* ---- Push buttons, lamps, connectors ---- */
+.pbg{display:flex;flex-direction:column;gap:7px}
+.pbg.h{flex-direction:row;flex-wrap:wrap;justify-content:center;gap:10px 16px}
+.tg.wide{flex-basis:100%;padding-top:10px;border-top:1px dashed var(--rule)}
+.pbr{display:flex;align-items:center;gap:6px}
+.pbtn{width:30px;height:18px;border-radius:3px;border:1px solid #6d6a62;cursor:pointer;padding:0;
+  background:linear-gradient(#f8f6f0,#d2cdc0);box-shadow:0 3px 0 #8b877b,0 4px 5px rgba(0,0,0,.25);transition:transform .06s,box-shadow .06s}
+.pbtn[aria-pressed="true"]{transform:translateY(3px);box-shadow:0 0 0 #8b877b,inset 0 1px 3px rgba(0,0,0,.35);background:linear-gradient(#ddd9cd,#cbc6b8)}
+.pbtn:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
+.pbtn.mom:active{transform:translateY(3px);box-shadow:0 0 0 #8b877b,inset 0 1px 3px rgba(0,0,0,.35)}
+.pbl{font:600 .72rem/1 var(--f-label);letter-spacing:.1em;color:var(--silk)}
+.lamp{width:9px;height:9px;border-radius:50%;background:#5c2e27;box-shadow:inset 0 1px 2px rgba(0,0,0,.6);flex:none}
+.lamp.on{background:#ff5338;box-shadow:0 0 7px #ff5338,inset 0 -1px 2px rgba(0,0,0,.25)}
+.pwr{display:flex;flex-direction:column;align-items:center;gap:5px}
+.pwr-in{display:flex;align-items:center;gap:8px}
+.pwr button{width:38px;height:28px;border-radius:4px;border:1px solid #3b3a36;cursor:pointer;padding:0;
+  background:linear-gradient(#3d4044,#1d1f22);box-shadow:0 3px 0 #0c0d0e,0 4px 6px rgba(0,0,0,.35);transition:transform .06s,box-shadow .06s}
+.pwr button[aria-pressed="true"]{transform:translateY(3px);box-shadow:0 0 0 #0c0d0e,inset 0 1px 3px rgba(0,0,0,.6)}
+.pwr button:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
+.bnc{display:flex;flex-direction:column;align-items:center;gap:4px}
+.bnc i{width:32px;height:32px;border-radius:50%;display:block;
+  background:radial-gradient(circle,#1a1a1a 0 17%,#d9d9d9 18% 27%,#2a2a2a 28% 33%,#9a9da2 34% 54%,#eceded 55% 66%,#8f9297 67% 100%);
+  box-shadow:0 3px 4px rgba(0,0,0,.4)}
+
+/* ---- Generator ---- */
+.gen-face{display:flex;flex-direction:column;gap:20px}
+.gen-top{display:flex;flex-wrap:wrap;gap:14px 24px;align-items:center;justify-content:space-between}
+.gen-top .plate{text-align:left}
+.disp{background:#140605;border-radius:6px;padding:10px 16px;box-shadow:inset 0 2px 8px rgba(0,0,0,.8),0 1px 0 rgba(255,255,255,.7);
+  font:500 .95rem/1.5 var(--f-mono);color:#ff5a3c;text-shadow:0 0 6px rgba(255,80,50,.75);font-variant-numeric:tabular-nums;
+  display:grid;grid-template-columns:auto auto auto auto;gap:0 18px;overflow-x:auto;max-width:100%;min-width:0}
+.disp span{white-space:nowrap;text-align:right}
+.disp span:first-child,.disp span:nth-child(4n+1){text-align:left}
+.gen-rows{display:flex;flex-direction:column;gap:22px}
+
+/* ---- On the bench: presets and measurements ---- */
+.presets{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.presets>span{font:600 .8rem/1 var(--f-label);text-transform:uppercase;letter-spacing:.14em;color:var(--bench-soft);margin-right:4px}
+button.pre{font:600 .9rem/1 var(--f-label);letter-spacing:.04em;background:var(--card-bg);color:var(--card-ink);border:1px solid #454c53;border-radius:5px;padding:7px 12px;cursor:pointer}
+button.pre:hover{border-color:#7a8691}
+button.pre:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.meas{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.mcard{background:var(--card-bg);color:var(--card-ink);border:1px solid var(--card-line);border-radius:6px;padding:9px 12px;font:.82rem/1.45 var(--f-mono);font-variant-numeric:tabular-nums;min-width:0}
+.mcard h3{margin:0 0 4px;font:700 .85rem/1.2 var(--f-label);letter-spacing:.12em;text-transform:uppercase}
+.mcard dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:1px 10px}
+.mcard dt{color:var(--card-soft)} .mcard dd{margin:0;text-align:right}
+.astat{margin:0;font-size:.88rem;color:var(--bench-soft);min-height:1.3em}
+.astat.err{color:var(--st-err)}
+.astat.ok{color:var(--st-ok)}
+footer.docs{margin-top:22px;display:flex;flex-wrap:wrap;gap:12px;align-items:stretch}
+a.doc{flex:1 1 260px;min-width:0;display:flex;flex-direction:column;gap:3px;text-decoration:none;color:var(--card-ink);
+  background:var(--card-bg);border:1px solid #454c53;border-radius:8px;padding:12px 16px}
+a.doc:hover{border-color:#7a8691}
+a.doc:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+a.doc b{font:700 1.05rem/1.2 var(--f-label);letter-spacing:.08em;text-transform:uppercase}
+a.doc span{color:var(--card-soft);font-size:.88rem}
+.langs-note{flex-basis:100%;margin:0;color:var(--bench-soft);font-size:.82rem;letter-spacing:.06em}
+.legal{flex-basis:100%;margin:6px 0 0;padding-top:10px;border-top:1px solid color-mix(in srgb,var(--bench-soft) 35%,transparent);
+  color:var(--bench-soft);font-size:.8rem;line-height:1.5}
+.legal a{color:inherit}
+.hdr-links{margin-left:auto;display:flex;gap:14px;font:600 .9rem/1 var(--f-label);letter-spacing:.08em;text-transform:uppercase}
+.hdr-links a{color:var(--bench-soft);text-decoration:none;border-bottom:1px solid transparent}
+.hdr-links a:hover{color:var(--bench-ink);border-bottom-color:currentColor}
+</style>
+<script>
+(() => {                                        // ?embed — for an iframe in another site; optional &bg=<colour> or &theme=dark
+  const q = new URLSearchParams(location.search);
+  if (!q.has("embed")) return;
+  const root = document.documentElement;
+  root.classList.add("embed");
+  let bg = q.get("bg"), dark = q.get("theme") === "dark";
+  if (bg){
+    if (/^[0-9a-f]{3}([0-9a-f]{3})?$/i.test(bg)) bg = "#" + bg;
+    if (window.CSS && CSS.supports("color", bg)){
+      root.style.setProperty("--page-bg", bg);
+      const c = document.createElement("canvas").getContext("2d");   // light or dark lettering from the colour's luminance
+      c.fillStyle = bg; c.fillRect(0, 0, 1, 1);
+      const [R, G, B, A] = c.getImageData(0, 0, 1, 1).data;
+      if (A > 0) dark = 0.2126*R + 0.7152*G + 0.0722*B < 128;
+    }
+  }
+  if (dark) root.classList.add("embed-dark");
+})();
+</script>
+</head>
+<body>
+<header>
+  <h1>Dual-Trace Oscilloscope</h1>
+  <p>Analog front panel with a built-in dual-channel function generator.</p>
+  <nav class="hdr-links" aria-label="Documentation"><a href="help.html">Manual</a><a href="tips.html">Measurement tips</a></nav>
+</header>
+
+<main class="bench">
+  <section class="case" aria-label="Oscilloscope">
+    <div class="face scope-face">
+      <div class="screen-col">
+        <div class="bezel"><div class="crt">
+          <canvas id="trace" aria-label="Oscilloscope screen"></canvas>
+          <canvas id="grat" aria-hidden="true"></canvas>
+          <div class="glass"></div>
+        </div></div>
+        <div class="under">
+          <div class="grpk" id="slot-disp"></div>
+          <div class="grpk" id="slot-z"></div>
+          <div class="grpk" id="slot-pwr"></div>
+          <div class="plate"><b>OSC-2</b><span>Dual-trace oscilloscope</span></div>
+        </div>
+      </div>
+      <div class="ctl">
+        <div class="sec full"><div class="sec-t">Vertical</div><div class="sec-in" id="slot-vert"></div></div>
+        <div class="sec full"><div class="sec-t">Horizontal</div><div class="sec-in" id="slot-hor"></div></div>
+      </div>
+      <div class="sec trig-sec"><div class="sec-t">Trigger <i class="lamp" id="led"></i><span style="font-size:.7rem;letter-spacing:.12em">TRIG'D</span></div><div class="sec-in" id="slot-trig"></div></div>
+    </div>
+  </section>
+
+  <section class="case" aria-label="Function generator">
+    <div class="face gen-face">
+      <div class="gen-top">
+        <div class="plate"><b>FG-2</b><span>Dual-channel function generator</span></div>
+        <div class="grpk" id="slot-vol"></div>
+        <div class="disp" id="gdisp" aria-live="polite"></div>
+      </div>
+      <div class="gen-rows" id="slot-gen"></div>
+    </div>
+  </section>
+
+  <div class="presets" id="presets"><span>Presets</span></div>
+  <p class="astat" id="astat" role="status"></p>
+  <div class="meas" id="meas" aria-live="polite"></div>
+</main>
+<footer class="docs">
+  <a class="doc" href="help.html">
+    <b>Operating manual</b>
+    <span>Every control of the OSC-2 and FG-2, step by step</span></a>
+  <a class="doc" href="tips.html">
+    <b>Measurement tips</b>
+    <span>Voltage, time, rise time, phase, Lissajous, delayed sweep, live audio</span></a>
+  <p class="langs-note">English · Deutsch · Русский · Magyar</p>
+  <p class="legal">© 2026 András Sümegi · OSC-2 / FG-2 oscilloscope simulator · Free software under the
+    <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank" rel="noopener">GNU General Public License v3.0 or later</a>,
+    provided without any warranty · <a href="LICENSE.txt" target="_blank" rel="noopener">Full licence text</a></p>
+</footer>
+
+<script>
+"use strict";
+// ---------- Constants ----------
+const TDIV = [1e-6,2e-6,5e-6,1e-5,2e-5,5e-5,1e-4,2e-4,5e-4,1e-3,2e-3,5e-3,1e-2,2e-2,5e-2,.1,.2,.5];
+const VDIV = [.01,.02,.05,.1,.2,.5,1,2,5];
+const TDIV_K = [...TDIV].reverse();            // clockwise = faster, as on real instruments
+const VDIV_K = [...VDIV].reverse();            // clockwise = more sensitive
+const WAVE_KEYS = ["sine","square","triangle","saw","pulse","noise"];
+const WAVES = {sine:"SINE",square:"SQUARE",triangle:"TRIANGLE",saw:"SAW",pulse:"PULSE 20%",noise:"NOISE"};
+const GLYPH = {
+  sine:"M1 5C3 -1 6 -1 9 5S15 11 17 5", square:"M1 8V2h4v6h4V2h4v6h4", triangle:"M1 8 5 2 9 8 13 2 17 8",
+  saw:"M1 8 9 2V8L17 2V8", pulse:"M1 8h2V2h2v6h6V2h2v6h4", noise:"M1 5l1.5-3 1.5 6 1.5-5 1.5 4 1.5-6 1.5 5 1.5-3 1.5 4 1.5-5 1.5 3"
+};
+const PHOS = ["#62ffa0","#ffc95a"];
+const ADDCOL = "#8fe8ff";
+const SCREEN_BG = [5,12,10];
+const ZBLANK_V = 5;                             // Z input: +5 V blanks the beam, negative voltage brightens it
+const EXT_LV = .5;                              // EXT trigger level: 0.5 V per level-scale unit
+const LINE_F = 50;                              // LINE trigger: internal 50 Hz reference (no mains here)
+
+const DEFAULTS = () => ({
+  power:true, spk:[false,false], vol:.3, mode:"dual", tdiv:2e-4, tdivB:2e-5, delay:2, hmode:"a", mag:false, hpos:0,
+  z:{src:"off"}, ext:{src:"g1"}, intensity:.8, focus:.35, persist:.6,
+  trig:{src:0, level:0, slope:1, mode:"auto"},
+  ch:[
+    {src:"g1", vdiv:1, pos:1.5, coup:"DC", wave:"sine",   f:1000, vpp:4, off:0, ph:0},
+    {src:"g2", vdiv:1, pos:-2,  coup:"DC", wave:"square", f:2000, vpp:3, off:0, ph:0}
+  ]
+});
+const D0 = DEFAULTS();
+let S = DEFAULTS();
+
+// ---------- Helpers ----------
+function eng(v, unit){
+  if (!isFinite(v)) return "—";
+  const a = Math.abs(v);
+  if (a === 0) return "0 " + unit;
+  const p = [[1e6,"M"],[1e3,"k"],[1,""],[1e-3,"m"],[1e-6,"µ"],[1e-9,"n"]];
+  for (const [m,s] of p) if (a >= m*0.9995) return +(v/m).toPrecision(3) + " " + s + unit;
+  return +(v/1e-9).toPrecision(3) + " n" + unit;
+}
+function fixed(v, unit, d=3){                   // for the display: fixed number of digits
+  const a = Math.abs(v), p = [[1e3,"k"],[1,""],[1e-3,"m"]];
+  for (const [m,s] of p) if (a >= m*0.9995 || m === 1e-3) return (v/m).toFixed(a/m >= 100 ? d-2 : a/m >= 10 ? d-1 : d) + " " + s + unit;
+}
+function hash(n){ const s = Math.sin(n*127.1 + 311.7)*43758.5453; return s - Math.floor(s); }
+
+// ---------- Signal generator ----------
+function waveVal(c, t){
+  const x = c.f*t + c.ph/360, fr = x - Math.floor(x), A = c.vpp/2;
+  switch (c.wave){
+    case "sine":     return A*Math.sin(2*Math.PI*x) + c.off;
+    case "square":   return (fr < .5 ? A : -A) + c.off;
+    case "triangle": return A*(4*Math.abs(fr-.5) - 1) + c.off;
+    case "saw":      return A*(2*fr - 1) + c.off;
+    case "pulse":    return (fr < .2 ? c.vpp : 0) + c.off;
+    case "noise": {
+      const r = t*c.f*20, i = Math.floor(r), u = r - i, s = u*u*(3-2*u);
+      const a = hash(i)+hash(i+7919)+hash(i+104729)-1.5, b = hash(i+1)+hash(i+7920)+hash(i+104730)-1.5;
+      return A*1.4*(a + (b-a)*s) + c.off;
+    }
+  }
+  return 0;
+}
+const meanOf = c => c.off + (c.wave === "pulse" ? .2*c.vpp : 0);
+const isGen = src => src === "g1" || src === "g2";
+const genOf = c => S.ch[c.src === "g2" ? 1 : 0];   // generator settings feeding a GEN-sourced channel
+const chDefSrc = k => k ? "g2" : "g1";            // fallback source when a live audio source goes away
+function inV(k, t){
+  const c = S.ch[k];
+  if (c.coup === "GND") return 0;
+  if (!isGen(c.src)){ const rg = RING[c.src]; return rg ? rg.at(k, t)*AUDIO_V : 0; }   // sound card: the hardware is already AC-coupled
+  const g = genOf(c), v = waveVal(g, t);
+  return c.coup === "AC" ? v - meanOf(g) : v;
+}
+const traceVal = (k, t) => k === "add" ? inV(0,t) + inV(1,t) : inV(k,t);
+const traceCh  = k => k === "add" ? S.ch[0] : S.ch[k];
+const tracesShown = () => ({ch1:[0], ch2:[1], dual:[0,1], add:["add"], xy:[]}[S.mode]);
+const genOut = (g, t) => waveVal(S.ch[g], t);                     // generator output g, DC-coupled
+const micMono = t => RING.mic ? (RING.mic.at(0, t) + RING.mic.at(1, t))/2*AUDIO_V : 0;
+function auxV(src, t){ return src === "g1" ? genOut(0, t) : src === "g2" ? genOut(1, t) : src === "mic" ? micMono(t) : 0; }
+function zFactor(t){
+  if (S.z.src === "off") return 1;
+  const f = 1 - auxV(S.z.src, t)/ZBLANK_V;
+  return f < 0 ? 0 : f > 2 ? 2 : f;
+}
+
+// ---------- Trigger ----------
+function trigV(t){                             // the signal the trigger circuit sees
+  const s = S.trig.src;
+  if (s === "line") return Math.sin(2*Math.PI*LINE_F*t);
+  if (s === "ext") return auxV(S.ext.src, t);
+  return inV(s, t);
+}
+function trigLevelV(){
+  const s = S.trig.src;
+  return s === "line" ? 0 : s === "ext" ? S.trig.level*EXT_LV : S.trig.level*S.ch[s].vdiv;
+}
+const audioSpan = () => Math.min(Math.max(10*S.tdiv, .025), 5);
+const genSpan = c => Math.min(3/Math.max(c.f, 1e-3), 30);
+function trigSpan(){
+  const s = S.trig.src;
+  if (s === "line") return 3/LINE_F;
+  if (s === "ext") return S.ext.src === "mic" ? audioSpan() : genSpan(S.ch[S.ext.src === "g1" ? 0 : 1]);
+  const c = S.ch[s];
+  return isGen(c.src) ? genSpan(genOf(c)) : audioSpan();
+}
+function trigDead(){                            // no usable trigger signal at all
+  const s = S.trig.src;
+  if (s === "line") return false;
+  if (s === "ext"){
+    if (S.ext.src === "mic") return false;
+    const g = S.ch[S.ext.src === "g1" ? 0 : 1]; return g.vpp === 0 && g.wave !== "noise";
+  }
+  const c = S.ch[s];
+  if (c.coup === "GND") return true;
+  const g = genOf(c);
+  return isGen(c.src) && g.vpp === 0 && g.wave !== "noise";
+}
+function findTrig(from, span = trigSpan()){
+  if (trigDead()) return null;
+  const L = trigLevelV(), rising = S.trig.slope > 0;
+  const n = 3000, h = span/n;
+  let tp = from, vp = trigV(tp);
+  for (let i = 1; i <= n; i++){
+    const t = from + i*h, v = trigV(t);
+    if (rising ? (vp < L && v >= L) : (vp > L && v <= L)){
+      let a = tp, b = t;
+      for (let j = 0; j < 40; j++){
+        const m = (a+b)/2, vm = trigV(m);
+        if (rising ? vm >= L : vm <= L) b = m; else a = m;
+      }
+      return b;
+    }
+    tp = t; vp = v;
+  }
+  return null;
+}
+
+// ---------- Canvas ----------
+const cvT = document.getElementById("trace"), cvG = document.getElementById("grat");
+const cT = cvT.getContext("2d"), cG = cvG.getContext("2d");
+let W = 800, H = 640, DIV = 80, dpr = 1;
+const sweep = {active:false, t0:0, drawn:0};
+function resize(){
+  dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const r = cvT.getBoundingClientRect();
+  W = r.width; H = r.height; DIV = W/10;
+  for (const cv of [cvT, cvG]){ cv.width = Math.round(W*dpr); cv.height = Math.round(H*dpr); }
+  cT.setTransform(dpr,0,0,dpr,0,0); cG.setTransform(dpr,0,0,dpr,0,0);
+  clearScreen(); drawGraticule();
+}
+function clearScreen(){ cT.fillStyle = `rgb(${SCREEN_BG})`; cT.fillRect(0,0,W,H); sweep.active = false; }
+new ResizeObserver(resize).observe(cvT);
+
+const yOf = (v, c) => H/2 - (v/c.vdiv + c.pos)*DIV;
+function strokeTrace(pts, col, alphaMul = 1){
+  if (pts.length < 4) return;
+  const a = S.intensity*alphaMul;
+  cT.lineJoin = "round"; cT.lineCap = "round";
+  cT.beginPath(); cT.moveTo(pts[0], pts[1]);
+  for (let i = 2; i < pts.length; i += 2) cT.lineTo(pts[i], pts[i+1]);
+  cT.globalAlpha = a*.35; cT.strokeStyle = col; cT.lineWidth = 2 + S.focus*8;
+  cT.shadowColor = col; cT.shadowBlur = 4 + S.focus*14; cT.stroke();
+  cT.shadowBlur = 0; cT.globalAlpha = Math.min(1, a*1.1);
+  cT.lineWidth = .9 + S.focus*2.2; cT.strokeStyle = col; cT.stroke();
+  cT.globalAlpha = Math.min(1, a*.9); cT.lineWidth = .6; cT.strokeStyle = "#f4fff8"; cT.stroke();
+  cT.globalAlpha = 1;
+}
+const colOf = k => k === "add" ? ADDCOL : PHOS[k];
+function strokeTraceMod(pts, fac, col, alphaMul = 1){   // per-point brightness (Z input, A INT)
+  if (!fac){ strokeTrace(pts, col, alphaMul); return; }
+  const q = i => Math.round(fac[i]*6)/6, N = fac.length;
+  let s = 0, cur = q(0);
+  for (let i = 1; i < N; i++){
+    const l = q(i);
+    if (l !== cur || i === N - 1){
+      if (cur > 0) strokeTrace(pts.slice(2*s, 2*i + 2), col, alphaMul*cur);
+      s = i; cur = l;
+    }
+  }
+}
+
+// ---------- Drawing ----------
+const N_FAST = 1100, N_SLOW = 1600;
+let trigd = false, sim = 0, measT0 = 0, measDur = 10*D0.tdiv, audT = null;   // audT: the sound-card clock, when a live audio source is active
+const single = {armed:false, done:false, armT:0, armAudio:false};   // SINGLE sweep state; armT: when it was armed
+function armSingle(){                           // RESET: wait for the first trigger that comes AFTER this moment
+  const a = audioNow();
+  Object.assign(single, {armed:true, done:false, armT:a !== null ? a : sim, armAudio:a !== null});
+}
+function afterArm(from, span){                  // with live audio, never search samples from before arming
+  const end = from + span, f = Math.max(from, single.armT);
+  return [f, end - f];
+}
+function hWindow(t0){                           // displayed time window for an A sweep that starts at t0
+  const tdA = S.tdiv, tdB = Math.min(S.tdivB, tdA);
+  let ws = t0, dd = 10*tdA;
+  if (S.hmode === "b"){ ws = t0 + S.delay*tdA; dd = 10*tdB; }
+  if (S.mag){ ws += .45*dd; dd /= 10; }         // ×10: the centre tenth of the screen fills it
+  return {ws, dd, end:Math.max(t0 + 10*tdA, ws + dd)};
+}
+function intenFactor(t, t0){                    // A INT: brighten the part of sweep A that sweep B shows
+  if (S.hmode !== "ai") return 1;
+  const s = t0 + S.delay*S.tdiv, e = s + 10*Math.min(S.tdivB, S.tdiv);
+  return t >= s && t <= e ? 1.7 : .3;
+}
+function facArr(ts, n, step, t0){               // brightness per point, or null when uniform
+  if (S.z.src === "off" && S.hmode !== "ai") return null;
+  const f = new Float32Array(n + 1);
+  for (let i = 0; i <= n; i++){ const t = ts + i*step; f[i] = zFactor(t)*intenFactor(t, t0); }
+  return f;
+}
+function drawYT(){
+  const ks = tracesShown(), aud = audT !== null, tdA = S.tdiv, isSingle = S.trig.mode === "single";
+  if (isSingle && !single.armed){ trigd = false; return; }
+  const guard = isSingle && aud;                // armed while samples are already in the buffer
+  if (guard && !single.armAudio){ single.armT = sim; single.armAudio = true; }   // live audio started after arming
+  const lead = hWindow(0).end + 5*tdA;          // how far a sweep reaches past its trigger
+  if (10*tdA <= .1){
+    // with live audio, search for the trigger in samples that have already arrived
+    let span = trigSpan(), from = aud ? sim - lead - span : sim;
+    if (guard) [from, span] = afterArm(from, span);
+    let tt = span > 0 ? findTrig(from, span) : null; trigd = tt !== null;
+    if (tt === null){ if (S.trig.mode !== "auto") return; tt = aud ? sim - lead : sim; }
+    const t0 = tt - S.hpos*tdA, w = hWindow(t0), step = w.dd/N_FAST;
+    measT0 = w.ws; measDur = w.dd;
+    const fac = facArr(w.ws, N_FAST, step, t0);
+    for (const k of ks){
+      const c = traceCh(k), pts = [];
+      for (let i = 0; i <= N_FAST; i++) pts.push(i/N_FAST*W, yOf(traceVal(k, w.ws + i*step), c));
+      strokeTraceMod(pts, fac, colOf(k), ks.length > 1 ? .9 : 1);
+    }
+    if (isSingle){ single.armed = false; single.done = true; }
+  } else {                                      // slow time base: the beam travels in real time
+    if (!sweep.active){
+      let tt;
+      if (!aud) tt = findTrig(sim);
+      else { const [f, sp] = guard ? afterArm(sim - .05, .05) : [sim - .05, .05]; tt = sp > 0 ? findTrig(f, sp) : null; }
+      let t0;
+      if (tt !== null){ t0 = tt - S.hpos*tdA; trigd = true; }
+      else if (S.trig.mode === "auto"){ t0 = sim; trigd = false; }
+      else return;
+      const w = hWindow(t0);
+      Object.assign(sweep, {active:true, t0, ws:w.ws, dd:w.dd, end:w.end, drawn:0});
+      measT0 = w.ws; measDur = w.dd;
+    }
+    const fr = Math.max(0, Math.min(1, (sim - sweep.ws)/sweep.dd));
+    if (fr > sweep.drawn){
+      const i0 = Math.floor(sweep.drawn*N_SLOW), i1 = Math.ceil(fr*N_SLOW), step = sweep.dd/N_SLOW;
+      const fac = facArr(sweep.ws + i0*step, i1 - i0, step, sweep.t0);
+      for (const k of ks){
+        const c = traceCh(k), pts = [];
+        for (let i = i0; i <= i1; i++) pts.push(i/N_SLOW*W, yOf(traceVal(k, sweep.ws + i*step), c));
+        strokeTraceMod(pts, fac, colOf(k));
+        if (!fac || fac[fac.length-1] > .05){    // the bright spot of the beam
+          const lx = pts[pts.length-2], ly = pts[pts.length-1];
+          cT.fillStyle = "#ffffff"; cT.shadowColor = colOf(k); cT.shadowBlur = 12;
+          cT.beginPath(); cT.arc(lx, ly, 1.6 + S.focus*1.5, 0, 7); cT.fill(); cT.shadowBlur = 0;
+        }
+      }
+      sweep.drawn = fr;
+    }
+    if (sim >= sweep.end){ sweep.active = false; if (isSingle){ single.armed = false; single.done = true; } }
+  }
+}
+function drawXY(){
+  const dur = 10*S.tdiv, n = 2600, c1 = S.ch[0], c2 = S.ch[1], pts = [], t0 = audT !== null ? sim - dur : sim;
+  measT0 = t0; measDur = dur;
+  for (let i = 0; i <= n; i++){
+    const t = t0 + i/n*dur;
+    pts.push(W/2 + (inV(0,t)/c1.vdiv + S.hpos)*DIV, yOf(inV(1,t), c2));
+  }
+  trigd = false;
+  const fac = S.z.src === "off" ? null : Float32Array.from({length:n + 1}, (_, i) => zFactor(t0 + i/n*dur));
+  strokeTraceMod(pts, fac, PHOS[0]);
+}
+function fade(dt, keepBase){
+  const keep = Math.pow(keepBase, dt*60);
+  cT.globalAlpha = 1 - keep; cT.fillStyle = `rgb(${SCREEN_BG})`; cT.fillRect(0,0,W,H); cT.globalAlpha = 1;
+}
+function drawGraticule(){                       // graticule "engraved" on the front of the screen
+  cG.clearRect(0,0,W,H);
+  cG.strokeStyle = "rgba(150,190,175,.22)"; cG.lineWidth = 1;
+  cG.beginPath();
+  for (let i = 1; i < 10; i++){ const x = Math.round(i*DIV)+.5; cG.moveTo(x,0); cG.lineTo(x,H); }
+  for (let j = 1; j < 8; j++){ const y = Math.round(j*DIV)+.5; cG.moveTo(0,y); cG.lineTo(W,y); }
+  cG.stroke();
+  cG.strokeStyle = "rgba(150,190,175,.38)"; cG.beginPath();
+  for (let i = 0; i <= 50; i++){ const x = i*DIV/5; cG.moveTo(x, H/2-4); cG.lineTo(x, H/2+4); }
+  for (let j = 0; j <= 40; j++){ const y = j*DIV/5; cG.moveTo(W/2-4, y); cG.lineTo(W/2+4, y); }
+  cG.stroke();
+  cG.setLineDash([2,4]); cG.strokeStyle = "rgba(150,190,175,.3)"; cG.beginPath();   // 0%, 10%, 90%, 100% lines
+  for (const d of [-2.5,-2,2,2.5]){ const y = Math.round(H/2 + d*DIV)+.5; cG.moveTo(DIV*.5,y); cG.lineTo(W-DIV*.5,y); }
+  cG.stroke(); cG.setLineDash([]);
+  const fs = Math.max(9, Math.round(W/70));
+  cG.font = `${fs}px "IBM Plex Mono", monospace`; cG.fillStyle = "rgba(150,190,175,.45)";
+  [["100",-2.5],["90",-2],["10",2],["0%",2.5]].forEach(([t,d]) => cG.fillText(t, 4, H/2 + d*DIV + fs*.35));
+}
+
+// ---------- Measurements ----------
+function measure(k, t0, dur){
+  const n = 3000; let mx = -Infinity, mn = Infinity, s2 = 0, s1 = 0; const v = new Float64Array(n);
+  for (let i = 0; i < n; i++){ const x = traceVal(k, t0 + i/n*dur); v[i] = x; if (x>mx) mx=x; if (x<mn) mn=x; s1 += x; s2 += x*x; }
+  let mean = s1/n; if (Math.abs(mean) < 1e-6*Math.max(1e-3, mx-mn)) mean = 0;
+  const rms = Math.sqrt(Math.max(0, s2/n - mean*mean));
+  const mid = (mx+mn)/2, hy = (mx-mn)*.05; let arm = false, first = -1, last = -1, cnt = 0;
+  for (let i = 0; i < n; i++){
+    if (v[i] < mid - hy) arm = true;
+    else if (arm && v[i] > mid + hy){ arm = false; if (first < 0) first = i; last = i; cnt++; }
+  }
+  const f = cnt >= 2 && mx - mn > 1e-9 ? (cnt-1)/((last-first)/n*dur) : NaN;
+  return {vpp: mx-mn, mean, rms, f};
+}
+const measEl = document.getElementById("meas");
+function updateMeas(){
+  if (!S.power){ measEl.innerHTML = ""; return; }
+  const dur = measDur, ks = S.mode === "xy" ? [0,1] : tracesShown();
+  let html = "";
+  for (const k of ks){
+    const m = measure(k, measT0, dur), name = k === "add" ? "CH1 + CH2" : `CH${k+1}`;
+    const col = k === "add" ? ADDCOL : PHOS[k];
+    html += `<div class="mcard"><h3 style="color:${col}">${name} readings</h3><dl>
+      <dt>Vpp</dt><dd>${eng(m.vpp,"V")}</dd><dt>Vrms (AC)</dt><dd>${eng(m.rms,"V")}</dd>
+      <dt>Mean</dt><dd>${eng(m.mean,"V")}</dd><dt>Frequency</dt><dd>${isFinite(m.f) ? eng(m.f,"Hz") : "— (too few cycles)"}</dd></dl></div>`;
+  }
+  if (S.mode === "xy" && isGen(S.ch[0].src) && isGen(S.ch[1].src)){   // generator settings of the X and Y signals
+    const gx = genOf(S.ch[0]), gy = genOf(S.ch[1]);
+    if (gy.f > 0) html += `<div class="mcard"><h3>XY ratio</h3><dl><dt>fx : fy</dt><dd>${(gx.f/gy.f).toFixed(3)}</dd><dt>Phase difference</dt><dd>${((gx.ph - gy.ph + 720) % 360).toFixed(0)}°</dd></dl></div>`;
+  }
+  measEl.innerHTML = html;
+}
+
+
+// ---------- Sound card: inputs and output ----------
+const AUDIO_V = 1;                              // digital full scale = ±1 V
+const RING_N = 1 << 19;                         // ~11 s of history at 48 kHz
+class Ring{
+  constructor(sr){ this.d = [new Float32Array(RING_N), new Float32Array(RING_N)]; this.latest = -1; this.sr = sr; }
+  push(f0, l, r){
+    for (let j = 0; j < l.length; j++){ const i = (f0 + j) & (RING_N - 1); this.d[0][i] = l[j]; this.d[1][i] = r[j]; }
+    if (f0 + l.length - 1 > this.latest) this.latest = f0 + l.length - 1;
+  }
+  at(ch, t){                                    // t: sound-card time in seconds, linearly interpolated
+    const x = t*this.sr, i = Math.floor(x);
+    if (i < this.latest - RING_N + 2 || i + 1 > this.latest) return 0;
+    const a = this.d[ch][i & (RING_N - 1)], b = this.d[ch][(i + 1) & (RING_N - 1)];
+    return a + (b - a)*(x - i);
+  }
+}
+const RING = {mic:null, sys:null};
+const AUD = {ctx:null, ready:null, worklet:false, gen:null, genP:null, sink:null, streams:{}, pending:{}};
+function genS(p, k, t){
+  if (!p.spk[k]) return 0;
+  const c = p.ch[k], v = (waveVal(c, t) - meanOf(c))/5*p.vol;      // 10 Vpp = full scale; DC removed
+  return v > 1 ? 1 : v < -1 ? -1 : v;
+}
+const WSRC = `${hash.toString()}
+${waveVal.toString()}
+const meanOf = ${meanOf.toString()};
+${genS.toString()}
+class Gen extends AudioWorkletProcessor{
+  constructor(){ super(); this.p = null; this.port.onmessage = e => { this.p = e.data; }; }
+  process(i, o){
+    const L = o[0][0], R = o[0][1], p = this.p;
+    if (!p || !L) return true;
+    for (let n = 0; n < L.length; n++){ const t = (currentFrame + n)/sampleRate; L[n] = genS(p, 0, t); if (R) R[n] = genS(p, 1, t); }
+    return true;
+  }
+}
+class Tap extends AudioWorkletProcessor{
+  constructor(){ super(); this.n = 0; this.f0 = 0; this.l = new Float32Array(1024); this.r = new Float32Array(1024); }
+  process(inp){
+    const a = inp[0] || [], L = a[0], R = a[1] || a[0], len = L ? L.length : 128;
+    for (let j = 0; j < len; j++){
+      if (this.n === 0) this.f0 = currentFrame + j;
+      this.l[this.n] = L ? L[j] : 0; this.r[this.n] = R ? R[j] : 0;
+      if (++this.n === 1024){
+        this.port.postMessage({f0:this.f0, l:this.l, r:this.r}, [this.l.buffer, this.r.buffer]);
+        this.l = new Float32Array(1024); this.r = new Float32Array(1024); this.n = 0;
+      }
+    }
+    return true;
+  }
+}
+registerProcessor("osc-gen", Gen);
+registerProcessor("osc-tap", Tap);`;
+
+function ensureCtx(){                           // must be called from a user action (autoplay policy)
+  if (!AUD.ctx){
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC){ status("This browser does not support Web Audio.", "err"); return Promise.reject(new Error("noaudio")); }
+    AUD.ctx = new AC();
+    AUD.ready = setupAudio();
+  }
+  if (AUD.ctx.state === "suspended") AUD.ctx.resume();
+  return AUD.ready;
+}
+async function setupAudio(){
+  const ctx = AUD.ctx;
+  try {
+    const url = URL.createObjectURL(new Blob([WSRC], {type:"application/javascript"}));
+    await ctx.audioWorklet.addModule(url); AUD.worklet = true;
+  } catch (e) { AUD.worklet = false; }
+  AUD.sink = ctx.createGain(); AUD.sink.gain.value = 0; AUD.sink.connect(ctx.destination);
+  if (AUD.worklet){
+    AUD.gen = new AudioWorkletNode(ctx, "osc-gen", {numberOfInputs:0, numberOfOutputs:1, outputChannelCount:[2]});
+  } else {                                      // fallback for older browsers
+    AUD.gen = ctx.createScriptProcessor(2048, 1, 2);
+    AUD.gen.onaudioprocess = e => {
+      const L = e.outputBuffer.getChannelData(0), R = e.outputBuffer.getChannelData(1), p = AUD.genP, sr = ctx.sampleRate;
+      const f0 = Math.round(e.playbackTime*sr);
+      for (let n = 0; n < L.length; n++){ const t = (f0 + n)/sr; L[n] = p ? genS(p, 0, t) : 0; R[n] = p ? genS(p, 1, t) : 0; }
+    };
+  }
+  AUD.gen.connect(ctx.destination);
+  pushGen();
+}
+function pushGen(){
+  if (!AUD.gen) return;
+  const p = {ch:S.ch.map(c => ({wave:c.wave, f:c.f, vpp:c.vpp, off:c.off, ph:c.ph})), spk:[...S.spk], vol:S.vol};
+  if (AUD.worklet) AUD.gen.port.postMessage(p); else AUD.genP = p;
+}
+function makeTap(srcNode, ring){
+  const ctx = AUD.ctx;
+  let node;
+  if (AUD.worklet){
+    node = new AudioWorkletNode(ctx, "osc-tap", {numberOfInputs:1, numberOfOutputs:1, outputChannelCount:[1], channelCount:2, channelCountMode:"explicit"});
+    node.port.onmessage = e => ring.push(e.data.f0, e.data.l, e.data.r);
+  } else {
+    node = ctx.createScriptProcessor(2048, 2, 1);
+    node.onaudioprocess = e => {
+      const ib = e.inputBuffer, l = ib.getChannelData(0).slice(), r = (ib.numberOfChannels > 1 ? ib.getChannelData(1) : ib.getChannelData(0)).slice();
+      ring.push(Math.round(e.playbackTime*ctx.sampleRate), l, r);
+    };
+  }
+  srcNode.connect(node); node.connect(AUD.sink);
+  return node;
+}
+const SRC_NAME = {mic:"Audio input (AUDIO IN)", sys:"Playback audio (AUDIO OUT)"};
+function startSource(kind){                     // one open at a time per source kind
+  if (AUD.streams[kind]) return Promise.resolve();
+  if (!AUD.pending[kind]) AUD.pending[kind] = openSource(kind).finally(() => { delete AUD.pending[kind]; });
+  return AUD.pending[kind];
+}
+async function openSource(kind){
+  const ready = ensureCtx();                    // still within the click
+  const md = navigator.mediaDevices;
+  if (!md || !window.isSecureContext) throw Object.assign(new Error(), {name:"Insecure"});
+  let stream;
+  const ac = {echoCancellation:false, noiseSuppression:false, autoGainControl:false};
+  if (kind === "mic"){
+    if (!md.getUserMedia) throw Object.assign(new Error(), {name:"Unsupported"});
+    stream = await md.getUserMedia({audio:{...ac, channelCount:{ideal:2}}});
+  } else {
+    if (!md.getDisplayMedia) throw Object.assign(new Error(), {name:"Unsupported"});
+    stream = await md.getDisplayMedia({video:true, audio:ac, systemAudio:"include"});
+    stream.getVideoTracks().forEach(t => t.stop());
+    if (!stream.getAudioTracks().length){ stream.getTracks().forEach(t => t.stop()); throw Object.assign(new Error(), {name:"NoAudioShared"}); }
+  }
+  await ready;
+  const ring = new Ring(AUD.ctx.sampleRate);
+  const src = AUD.ctx.createMediaStreamSource(stream), tap = makeTap(src, ring);
+  RING[kind] = ring; AUD.streams[kind] = {stream, src, tap};
+  stream.getAudioTracks()[0].addEventListener("ended", () => {
+    S.ch.forEach((c, j) => { if (c.src === kind) c.src = chDefSrc(j); });
+    if (kind === "mic"){ if (S.z.src === "mic") S.z.src = "off"; if (S.ext.src === "mic") S.ext.src = "g1"; }
+    stopSource(kind); status(`${SRC_NAME[kind]}: the source ended; the channel switched back to the generator.`); changed();
+  });
+}
+function stopSource(kind){
+  const s = AUD.streams[kind]; if (!s) return;
+  s.stream.getTracks().forEach(t => t.stop());
+  try { s.src.disconnect(); s.tap.disconnect(); } catch (e) {}
+  delete AUD.streams[kind]; RING[kind] = null;
+}
+function usedKinds(){                          // live audio sources something is switched to
+  const k = new Set(S.ch.map(c => c.src).filter(x => !isGen(x)));
+  if (S.z.src === "mic" || S.ext.src === "mic") k.add("mic");
+  return k;
+}
+function releaseUnused(){ const u = usedKinds(); for (const k of ["mic","sys"]) if (AUD.streams[k] && !u.has(k)) stopSource(k); }
+function audioNow(){                            // time of the newest sample from the slowest active source
+  let t = null;
+  for (const kind of usedKinds()){
+    const rg = RING[kind];
+    if (rg && rg.latest >= 0){ const x = rg.latest/rg.sr; t = t === null ? x : Math.min(t, x); }
+  }
+  return t;
+}
+function errText(kind, e){
+  const n = e && e.name;
+  if (n === "Insecure") return "Live audio input requires a secure (https) page.";
+  if (n === "Unsupported") return kind === "sys" ? "This browser cannot capture playback audio (not supported on phones; works in desktop Chrome or Edge)." : "This browser does not provide access to the audio input.";
+  if (n === "NoAudioShared") return "The share contained no audio. When sharing, tick \"Share tab audio\" or \"Share system audio\".";
+  if (n === "NotFoundError") return "No audio input device found.";
+  if (n === "NotReadableError") return "The audio device is in use by another program.";
+  if (n === "NotAllowedError" || n === "SecurityError") return "Access was denied by the browser or the embedding page. Allow it in the browser's address bar; it is not available in the preview inside Claude, but works on your own (e.g. Vercel) site.";
+  return "Could not open the audio source.";
+}
+const PP = document.permissionsPolicy || document.featurePolicy;
+const allows = f => !PP || typeof PP.allowsFeature !== "function" || PP.allowsFeature(f);
+const EMBED_MSG = "Not available in this embedded view (e.g. the preview inside Claude): it blocks the microphone and screen sharing. It works when the page is opened on its own site, e.g. on Vercel.";
+function audioBlock(kind){                      // why a live audio source cannot be used here, or null
+  const md = navigator.mediaDevices;
+  if (!window.isSecureContext || !md) return "Live audio needs a secure (https) page.";
+  if (kind === "mic"){
+    if (!md.getUserMedia) return "This browser gives no access to the audio input.";
+    if (!allows("microphone")) return EMBED_MSG;
+  } else {
+    if (!md.getDisplayMedia) return "This browser cannot capture playback audio (desktop Chrome or Edge only; not on phones).";
+    if (!allows("display-capture")) return EMBED_MSG;
+  }
+  return null;
+}
+const NOTES = {};                               // switch key → shows a short message next to that switch
+const noteAt = (key, msg) => { if (NOTES[key]) NOTES[key](msg); };
+function selectSource(i, v){
+  const c = S.ch[i]; c.src = v;
+  if (isGen(v)) return;
+  startSource(v).then(() => {
+    status(`${SRC_NAME[v]} → CH${i+1} connected (${Math.round(AUD.ctx.sampleRate/100)/10} kHz). Full scale = ±1 V.`, "ok");
+    changed();
+  }).catch(e => {
+    S.ch.forEach((ch, j) => { if (ch.src === v) ch.src = chDefSrc(j); });
+    status(errText(v, e), "err"); noteAt("in" + i, errText(v, e)); changed();
+  });
+}
+function selectAux(key, v){                     // Z input / EXT TRIG input source
+  const prev = S[key].src, name = key === "z" ? "Z input" : "EXT TRIG";
+  S[key].src = v;
+  if (v !== "mic") return;
+  startSource("mic").then(() => {
+    status(`${SRC_NAME.mic} → ${name} connected. Full scale = ±1 V.`, "ok"); changed();
+  }).catch(e => {
+    if (S[key].src === "mic") S[key].src = prev !== "mic" ? prev : key === "z" ? "off" : "g1";
+    status(errText("mic", e), "err"); noteAt(key, errText("mic", e)); changed();
+  });
+}
+const astat = document.getElementById("astat");
+function status(msg, kind){ astat.textContent = msg; astat.className = "astat" + (kind ? " " + kind : ""); }
+
+// ---------- Controls ----------
+const CTL = [];
+const ANG = 150;                                // knobs turn ±150°
+function el(tag, cls, html){ const e = document.createElement(tag); if (cls) e.className = cls; if (html !== undefined) e.innerHTML = html; return e; }
+const rad = a => a*Math.PI/180;
+
+function knob(o){
+  const sz = o.size || 40, pad = o.pad ?? 8, D = sz + 2*pad, R = D/2;
+  const n = o.steps ? o.steps.length : 0;
+  const angOf = o.steps ? i => -ANG + i*2*ANG/(n-1) : v => -ANG + (v-o.min)/(o.max-o.min)*2*ANG;
+  const wrap = el("div", "kn" + (o.big ? " big" : "") + (o.dense ? " dense" : ""));
+  wrap.style.setProperty("--sz", sz+"px"); wrap.style.setProperty("--pad", pad+"px");
+  if (o.ring) wrap.style.setProperty("--ring", o.ring);
+  const dial = el("div", "kn-dial");
+  const tick = (a, len, w) => { const r1 = sz/2 + 3, r2 = r1 + len, s = Math.sin(rad(a)), c = Math.cos(rad(a));
+    return `<line x1="${(R+r1*s).toFixed(2)}" y1="${(R-r1*c).toFixed(2)}" x2="${(R+r2*s).toFixed(2)}" y2="${(R-r2*c).toFixed(2)}" stroke-width="${w}" stroke-linecap="round"/>`; };
+  let svg = `<svg class="kn-scale" viewBox="0 0 ${D} ${D}" width="${D}" height="${D}" aria-hidden="true">`;
+  if (o.steps) for (let i = 0; i < n; i++) svg += tick(angOf(i), 3.5, 1.3);
+  else {
+    const nt = o.ticks ?? 11;
+    for (let i = 0; i < nt; i++) svg += tick(-ANG + i*2*ANG/(nt-1), 3, 1);
+    for (const [v] of o.marks || []) svg += tick(angOf(v), 5, 1.6);
+  }
+  dial.innerHTML = svg + "</svg>";
+  const LR = o.labR ?? (sz/2 + pad - 9);
+  const place = (s, a, r) => { s.style.left = (R + r*Math.sin(rad(a))) + "px"; s.style.top = (R - r*Math.cos(rad(a))) + "px"; dial.append(s); return s; };
+  const labs = [];
+  if (o.steps) o.steps.forEach((st, i) => {
+    const s = place(el("span", "kn-lab" + (st.c ? " " + st.c : ""), st.l), angOf(i), LR); labs.push(s);
+    s.addEventListener("click", () => setU(i));
+  });
+  for (const [v, t] of o.marks || []){
+    const s = place(el("span", "kn-lab", t), angOf(v), LR);
+    s.addEventListener("click", () => setU(v));
+  }
+  for (const [p, t] of o.units || []) place(el("span", "kn-unit", t), angOf(p), LR + 14);
+  const cap = el("div", "kn-cap", '<div class="kn-rot"></div><div class="kn-face"></div><div class="kn-ptr"></div>');
+  cap.tabIndex = 0; cap.setAttribute("role", "slider"); cap.setAttribute("aria-label", o.label || o.name);
+  const val = el("div", "kn-val");
+  dial.append(cap, val);
+  let holder = dial;
+  if (o.box){ holder = el("div", "kn-box"); holder.style.setProperty("--box", o.box + "px"); holder.append(dial); }
+  wrap.append(holder, el("div", "nm", o.name + (o.legend ? `<small>${o.legend}</small>` : "")));
+
+  function setU(v){
+    v = o.steps ? Math.max(0, Math.min(n-1, Math.round(v))) : Math.max(o.min, Math.min(o.max, v));
+    if (v !== o.get()){ o.set(v); changed(); }
+  }
+  const unit = () => o.steps ? 1 : (o.max - o.min)/100;
+  let drag = null, flashT = 0;
+  const flash = () => { wrap.classList.add("show"); clearTimeout(flashT); flashT = setTimeout(() => { if (!drag && document.activeElement !== cap) wrap.classList.remove("show"); }, 900); };
+  cap.addEventListener("pointerdown", e => {
+    if (e.button) return;
+    cap.setPointerCapture(e.pointerId); e.preventDefault(); cap.focus({preventScroll:true});
+    drag = {x:e.clientX, y:e.clientY, v:o.get()}; wrap.classList.add("show"); cap.classList.add("drag");
+  });
+  cap.addEventListener("pointermove", e => {
+    if (!drag) return;
+    const d = (e.clientX - drag.x) - (e.clientY - drag.y);
+    if (o.steps) setU(drag.v + d/24);
+    else setU(drag.v + d/(e.shiftKey ? 1200 : 240)*(o.max - o.min));
+  });
+  const end = () => { if (!drag) return; drag = null; cap.classList.remove("drag"); flash(); };
+  cap.addEventListener("pointerup", end); cap.addEventListener("pointercancel", end); cap.addEventListener("lostpointercapture", end);
+  cap.addEventListener("wheel", e => { e.preventDefault(); const s = e.deltaY < 0 ? 1 : -1; setU(o.get() + s*unit()*(o.steps || !e.shiftKey ? 1 : .2)); flash(); }, {passive:false});
+  cap.addEventListener("keydown", e => {
+    const k = e.key, u = unit();
+    const map = {ArrowUp:u, ArrowRight:u, ArrowDown:-u, ArrowLeft:-u, PageUp:u*(o.steps?3:10), PageDown:-u*(o.steps?3:10)};
+    if (k in map){ setU(o.get() + map[k]); e.preventDefault(); }
+    else if (k === "Home"){ setU(o.steps ? 0 : o.min); e.preventDefault(); }
+    else if (k === "End"){ setU(o.steps ? n-1 : o.max); e.preventDefault(); }
+  });
+  cap.addEventListener("dblclick", () => { if (o.def !== undefined) setU(o.def()); });
+  cap.addEventListener("focus", () => wrap.classList.add("show"));
+  cap.addEventListener("blur", () => { if (!drag) wrap.classList.remove("show"); });
+
+  CTL.push({sync(){
+    const v = o.get(), a = angOf(v);
+    wrap.style.setProperty("--a", a + "deg");
+    labs.forEach((s, i) => s.classList.toggle("on", i === v));
+    const txt = o.steps ? o.steps[v].t : o.fmt(v);
+    val.textContent = txt;
+    cap.setAttribute("aria-valuetext", txt);
+    cap.setAttribute("aria-valuenow", +(+v).toFixed(4));
+    cap.setAttribute("aria-valuemin", o.steps ? 0 : o.min); cap.setAttribute("aria-valuemax", o.steps ? n-1 : o.max);
+  }});
+  return wrap;
+}
+
+function lever(o){
+  const n = o.opts.length, h = n === 2 ? 40 : 16 + (n-1)*20, pos = i => 8 + i*(h-16)/(n-1);
+  const wrap = el("div", "tg"), inn = el("div", "tg-in"); inn.style.setProperty("--h", h+"px");
+  if (o.w) inn.style.setProperty("--w", o.w);
+  const slot = el("button", "tg-slot"), lev = el("span", "tg-lever"); slot.type = "button"; slot.append(lev);
+  const box = el("div", "tg-opts"), note = el("div", "tg-note");
+  note.setAttribute("role", "status");
+  const idx = () => o.opts.findIndex(p => String(p[0]) === String(o.get()));
+  const why = j => o.blocked ? o.blocked(o.opts[j][0]) : null;     // reason a position cannot be used here
+  let noteT = 0;
+  const showNote = msg => {                     // short message bubble under the switch, kept inside the window
+    note.textContent = msg; note.style.setProperty("--dx", "0px"); note.classList.add("show");
+    const rc = note.getBoundingClientRect(), vw = document.documentElement.clientWidth, m = 8;
+    const dx = rc.left < m ? m - rc.left : rc.right > vw - m ? vw - m - rc.right : 0;
+    note.style.setProperty("--dx", dx + "px");
+    clearTimeout(noteT); noteT = setTimeout(() => note.classList.remove("show"), 5000);
+  };
+  if (o.key) NOTES[o.key] = showNote;
+  const setIdx = j => {
+    j = Math.max(0, Math.min(n-1, j));
+    if (j === idx()) return true;
+    const reason = why(j);
+    if (reason){ showNote(reason); return false; }
+    o.set(o.opts[j][0]); changed(); return true;
+  };
+  const labs = o.opts.map(([v, l], i) => {
+    const b = el("button", "tg-o", l); b.type = "button"; b.style.top = pos(i) + "px"; b.tabIndex = -1;
+    b.addEventListener("click", () => setIdx(i)); box.append(b); return b;
+  });
+  let drag = null;
+  const step = (h - 16)/(n - 1);
+  const yIn = e => e.clientY - slot.getBoundingClientRect().top;
+  slot.style.touchAction = "none";
+  slot.addEventListener("pointerdown", e => {
+    if (e.button) return;
+    slot.setPointerCapture(e.pointerId); e.preventDefault(); slot.focus({preventScroll:true});
+    drag = {y:e.clientY, moved:false, changed:false, refused:false};
+  });
+  slot.addEventListener("pointermove", e => {     // dragging, with hysteresis so the lever never flickers between two positions
+    if (!drag) return;
+    if (!drag.moved && Math.abs(e.clientY - drag.y) < 7) return;
+    drag.moved = true;
+    const f = (yIn(e) - 8)/step;
+    let i = idx();
+    while (f > i + .65 && i < n - 1) i++;
+    while (f < i - .65 && i > 0) i--;
+    if (i !== idx() && !(drag.refused && why(i))){
+      if (setIdx(i)) drag.changed = true; else drag.refused = true;   // one note per drag is enough
+    }
+  });
+  slot.addEventListener("pointerup", e => {       // a click always switches: to the clicked position, or one step if the lever itself was clicked
+    if (!drag) return;
+    const d = drag; drag = null;
+    if (d.changed || d.refused) return;
+    const y = yIn(e), i = idx(), near = Math.max(0, Math.min(n - 1, Math.round((y - 8)/step)));
+    if (near !== i) setIdx(near);
+    else if (i === 0) setIdx(1);
+    else if (i === n - 1) setIdx(n - 2);
+    else setIdx(y < pos(i) ? i - 1 : i + 1);
+  });
+  slot.addEventListener("pointercancel", () => { drag = null; });
+  slot.addEventListener("click", e => {           // Enter / Space: next usable position, wrapping round
+    if (e.detail !== 0) return;
+    for (let k = 1; k < n; k++){ const j = (idx() + k) % n; if (!why(j)){ setIdx(j); return; } }
+  });
+  slot.addEventListener("wheel", e => { e.preventDefault(); setIdx(idx() + (e.deltaY > 0 ? 1 : -1)); }, {passive:false});
+  slot.addEventListener("keydown", e => {
+    const d = {ArrowUp:-1, ArrowLeft:-1, ArrowDown:1, ArrowRight:1}[e.key];
+    if (d){ setIdx(idx() + d); e.preventDefault(); }
+  });
+  inn.append(slot, box); wrap.append(inn, el("div", "nm", o.name), note);
+  CTL.push({sync(){
+    const i = idx(); lev.style.top = pos(i) + "px";
+    labs.forEach((b, j) => {
+      b.classList.toggle("on", j === i);
+      const r = why(j); b.classList.toggle("na", !!r); b.title = r || "";
+    });
+    slot.setAttribute("aria-label", `${o.label || o.name}: ${o.opts[i][1]} (arrow keys move it up or down)`);
+  }});
+  return wrap;
+}
+
+function pushGroup(o){
+  const wrap = el("div", "tg" + (o.horiz ? " wide" : "")), col = el("div", "pbg" + (o.horiz ? " h" : ""));
+  const items = o.opts.map(([v, l]) => {
+    const r = el("div", "pbr"), lamp = el("i", "lamp"), b = el("button", "pbtn");
+    b.type = "button"; b.setAttribute("aria-label", `Mode: ${l}`);
+    b.addEventListener("click", () => { o.set(v); changed(); });
+    r.append(lamp, b, el("span", "pbl", l)); col.append(r);
+    return {v, lamp, b};
+  });
+  wrap.append(col, el("div", "nm", o.name));
+  CTL.push({sync(){ for (const it of items){ const on = it.v === o.get(); it.b.setAttribute("aria-pressed", on); it.lamp.classList.toggle("on", on && S.power); } }});
+  return wrap;
+}
+function pushBtn(o){                            // single push button with a lamp; latching when o.pressed is given
+  const w = el("div", "tg"), r = el("div", "pbr"), lamp = el("i", "lamp"), b = el("button", "pbtn" + (o.pressed ? "" : " mom"));
+  b.type = "button"; b.setAttribute("aria-label", o.label || o.name);
+  b.addEventListener("click", () => { o.onPress(); changed(); });
+  r.append(lamp, b, el("span", "pbl", o.lampName || "")); w.append(r, el("div", "nm", o.name));
+  CTL.push({sync(){ if (o.pressed) b.setAttribute("aria-pressed", !!o.pressed()); lamp.classList.toggle("on", !!o.lamp() && S.power); }});
+  return {w, lamp};
+}
+const bnc = name => { const b = el("div", "bnc"); b.append(el("i"), el("div", "nm", name)); return b; };
+const row = (...kids) => { const r = el("div", "row"); r.append(...kids); return r; };
+const axisRow = (...kids) => { const r = row(...kids); r.classList.add("axis"); return r; };
+
+// ---------- Panel assembly ----------
+const pct = v => Math.round(v*100) + " %";
+const tLab = v => v >= 1e-3 ? String(Math.round(v*1e3)) : String(Math.round(v*1e6));
+const vLab = v => v >= .1 ? String(v).replace(/^0\./, ".") : String(Math.round(v*1e3));
+
+document.getElementById("slot-disp").append(
+  knob({name:"Intensity", size:34, pad:7, min:.1, max:1, get:()=>S.intensity, set:v=>S.intensity=v, fmt:pct, def:()=>D0.intensity}),
+  knob({name:"Focus", size:34, pad:7, min:0, max:1, get:()=>S.focus, set:v=>S.focus=v, fmt:v=>v<.15?"sharp":v<.5?"medium":"blurred", def:()=>D0.focus}),
+  knob({name:"Persistence", size:34, pad:7, min:0, max:.97, get:()=>S.persist, set:v=>S.persist=v, fmt:pct, def:()=>D0.persist})
+);
+document.getElementById("slot-z").append(
+  lever({name:"Z input", label:"Z input source", w:"3.8em", key:"z", blocked:v => v === "mic" ? audioBlock("mic") : null, opts:[["off","OFF"],["g1","GEN 1"],["g2","GEN 2"],["mic","AUDIO"]],
+    get:()=>S.z.src, set:v=>selectAux("z", v)}),
+  bnc("Z")
+);
+(() => {                                        // power switch
+  const w = el("div", "pwr"), inn = el("div", "pwr-in"), lamp = el("i", "lamp"), b = el("button");
+  b.type = "button"; b.setAttribute("aria-label", "Power switch");
+  b.addEventListener("click", () => { S.power = !S.power; changed(); });
+  inn.append(b, lamp); w.append(inn, el("div", "nm", "Power"));
+  document.getElementById("slot-pwr").append(w);
+  CTL.push({sync(){ b.setAttribute("aria-pressed", S.power); lamp.classList.toggle("on", S.power); }});
+})();
+
+function chBlock(i){
+  const c = () => S.ch[i], col = `var(--ch${i+1})`;
+  const b = el("div", "chb");
+  const t = el("div", "cht", `CH${i+1} <span style="font-weight:600;letter-spacing:.1em">${i ? "(Y)" : "(X)"}</span>`); t.style.borderColor = col;
+  b.append(t,
+    knob({name:"Volts / div", label:`CH${i+1} volts/div`, big:true, size:52, pad:28, ring:col,
+      steps:VDIV_K.map(v => ({l:vLab(v), c:v < .1 ? "u2" : "", t:eng(v,"V") + " / div"})), legend:'V · <span class="u2">mV</span>',
+      get:()=>VDIV_K.indexOf(c().vdiv), set:j=>c().vdiv=VDIV_K[j], def:()=>VDIV_K.indexOf(D0.ch[i].vdiv)}),
+    row(
+      knob({name:"Position ↕", label:`CH${i+1} vertical position`, size:34, pad:6, ticks:0, ring:col, min:-4, max:4,
+        get:()=>c().pos, set:v=>c().pos=v, fmt:v=>(v>=0?"+":"")+v.toFixed(2)+" div", def:()=>0}),
+      lever({name:"Coupling", label:`CH${i+1} coupling`, opts:[["AC","AC"],["GND","GND"],["DC","DC"]], get:()=>c().coup, set:v=>c().coup=v}),
+      lever({name:"Input", label:`CH${i+1} input`, w:"4.3em", key:"in" + i, blocked:v => isGen(v) ? null : audioBlock(v), opts:[["g1","GEN 1"],["g2","GEN 2"],["mic","AUDIO IN"],["sys","AUDIO OUT"]],
+        get:()=>c().src, set:v=>selectSource(i, v)})
+    )
+  );
+  return b;
+}
+document.getElementById("slot-vert").append(
+  chBlock(0), chBlock(1),
+  pushGroup({name:"Mode", horiz:true, opts:[["ch1","CH1"],["ch2","CH2"],["dual","DUAL"],["add","ADD"],["xy","X-Y"]], get:()=>S.mode, set:v=>S.mode=v})
+);
+const HBOX = 124;                               // A TIME/DIV dial height: all horizontal knobs share it
+document.getElementById("slot-hor").append(
+  axisRow(
+  knob({name:"A Time / div", box:HBOX, label:"A time/div (main)", big:true, size:56, pad:34,
+    steps:TDIV_K.map(v => ({l:tLab(v), c:v < 1e-3 ? "u2" : "", t:"A " + eng(v,"s") + " / div"})), legend:'ms · <span class="u2">µs</span>',
+    get:()=>TDIV_K.indexOf(S.tdiv), set:j=>{ S.tdiv = TDIV_K[j]; if (S.tdivB > S.tdiv) S.tdivB = S.tdiv; }, def:()=>TDIV_K.indexOf(D0.tdiv)}),
+  knob({name:"B Time / div", box:HBOX, label:"B time/div (delayed)", size:42, pad:34, dense:true, ring:"#5a6275",
+    steps:TDIV_K.map(v => ({l:tLab(v), c:v < 1e-3 ? "u2" : "", t:"B " + eng(v,"s") + " / div"})), legend:'delayed · ms · <span class="u2">µs</span>',
+    get:()=>TDIV_K.indexOf(Math.min(S.tdivB, S.tdiv)), set:j=>{ S.tdivB = Math.min(TDIV_K[j], S.tdiv); }, def:()=>TDIV_K.indexOf(D0.tdivB)}),
+  knob({name:"Delay", box:HBOX, label:"Delay time position", size:40, pad:23, ticks:21, min:0, max:10,
+    marks:[[0,"0"],[2,"2"],[4,"4"],[6,"6"],[8,"8"],[10,"10"]], legend:"div of A",
+    get:()=>S.delay, set:v=>S.delay=v, fmt:v=>`${v.toFixed(2)} div = ${eng(v*S.tdiv,"s")}`, def:()=>D0.delay}),
+  knob({name:"Position ↔", box:HBOX, label:"Horizontal position", size:34, pad:6, ticks:0, min:-5, max:5,
+    get:()=>S.hpos, set:v=>S.hpos=v, fmt:v=>(v>=0?"+":"")+v.toFixed(2)+" div", def:()=>0})
+  ),
+  row(
+    lever({name:"Display", label:"Horizontal display", opts:[["a","A"],["ai","A INT"],["b","B"]], get:()=>S.hmode, set:v=>S.hmode=v}),
+    pushBtn({name:"Magnifier", label:"×10 magnifier", lampName:"×10", pressed:()=>S.mag, lamp:()=>S.mag, onPress:()=>{ S.mag = !S.mag; }}).w
+  )
+);
+let readyLamp;
+document.getElementById("slot-trig").append(
+  knob({name:"Level", label:"Trigger level", size:42, pad:16, min:-4, max:4, ticks:9, marks:[[-4,"<b style='font-size:13px'>−</b>"],[0,"0"],[4,"<b style='font-size:13px'>+</b>"]],
+    get:()=>S.trig.level, set:v=>S.trig.level=v, fmt:()=>S.trig.src === "line" ? "LINE: level not used" : eng(trigLevelV(),"V"), def:()=>0}),
+  row(
+    lever({name:"Source", label:"Trigger source", opts:[[0,"CH1"],[1,"CH2"],["ext","EXT"],["line","LINE"]],
+      get:()=>S.trig.src, set:v=>S.trig.src=v}),
+    lever({name:"Slope", label:"Trigger slope", opts:[[1,"+ ↑"],[-1,"− ↓"]], get:()=>S.trig.slope, set:v=>S.trig.slope=+v}),
+    lever({name:"Mode", label:"Trigger mode", opts:[["auto","AUTO"],["normal","NORM"],["single","SINGLE"]], w:"3.8em",
+      get:()=>S.trig.mode, set:v=>{ S.trig.mode = v; if (v === "single") armSingle(); }}),
+    (() => { const b = pushBtn({name:"Single reset", label:"Single sweep reset (arm)", lampName:"READY",
+      lamp:()=>S.trig.mode === "single" && single.armed,
+      onPress:()=>{ if (S.trig.mode === "single") armSingle(); }}); readyLamp = b.lamp; return b.w; })()
+  ),
+  row(
+    lever({name:"Ext trig in", label:"EXT TRIG input source", w:"3.8em", key:"ext", blocked:v => v === "mic" ? audioBlock("mic") : null, opts:[["g1","GEN 1"],["g2","GEN 2"],["mic","AUDIO"]],
+      get:()=>S.ext.src, set:v=>selectAux("ext", v)}),
+    bnc("Ext trig")
+  )
+);
+
+const GBOX = 98;                                // FREQUENCY dial height: the generator knobs of a row share it
+function genRow(i){
+  const c = () => S.ch[i], col = `var(--ch${i+1})`;
+  const r = el("div", "row axis"); r.style.gap = "16px 18px";        // knob axes of this output on one line
+  const t = el("div", "cht", `OUT ${i+1}`); t.style.borderColor = col; t.style.marginTop = (GBOX/2 - 10) + "px";
+  const onAxis = (e, h, gap) => {   // centre a switch or connector body on the knob axis, its label on the knob-label line
+    const m = (GBOX - h)/2, body = e.firstElementChild;
+    body.style.marginTop = m + "px"; body.style.marginBottom = (m - (gap - 3)) + "px";   // knob labels sit 3 px below the box
+    return e;
+  };
+  r.append(t,
+    knob({name:"Waveform", box:GBOX, label:`Generator ${i+1} waveform`, size:42, pad:24, ring:col,
+      steps:WAVE_KEYS.map(k => ({l:`<svg viewBox="0 0 18 10" aria-hidden="true"><path d="${GLYPH[k]}"/></svg>`, t:WAVES[k]})),
+      get:()=>WAVE_KEYS.indexOf(c().wave), set:j=>c().wave=WAVE_KEYS[j], def:()=>WAVE_KEYS.indexOf(D0.ch[i].wave)}),
+    knob({name:"Frequency", box:GBOX, label:`Generator ${i+1} frequency`, big:true, size:50, pad:24, ticks:0, ring:col, min:-.3, max:5,
+      marks:[[0,"1"],[1,"10"],[2,"100"],[3,"1k"],[4,"10k"],[5,"100k"]], legend:"Hz",
+      get:()=>Math.log10(c().f), set:v=>c().f=+Math.pow(10,v).toPrecision(3), fmt:()=>eng(c().f,"Hz"), def:()=>Math.log10(D0.ch[i].f)}),
+    knob({name:"Amplitude", box:GBOX, label:`Generator ${i+1} amplitude`, size:40, pad:18, ticks:11, min:0, max:10,
+      marks:[[0,"0"],[2,"2"],[4,"4"],[6,"6"],[8,"8"],[10,"10"]],
+      get:()=>c().vpp, set:v=>c().vpp=v, fmt:v=>eng(v,"Vpp"), def:()=>D0.ch[i].vpp}),
+    knob({name:"Offset", box:GBOX, label:`Generator ${i+1} offset`, size:40, pad:18, ticks:11, min:-5, max:5,
+      marks:[[-5,"−5"],[0,"0"],[5,"+5"]],
+      get:()=>c().off, set:v=>c().off=v, fmt:v=>(v>0?"+":"")+eng(v,"V"), def:()=>0}),
+    knob({name:"Phase", box:GBOX, label:`Generator ${i+1} phase`, size:40, pad:18, ticks:13, min:0, max:360,
+      marks:[[0,"0"],[90,"90"],[180,"180"],[270,"270"],[360,"360"]],
+      get:()=>c().ph, set:v=>c().ph=v, fmt:v=>v.toFixed(0)+"°", def:()=>D0.ch[i].ph}),
+    onAxis(lever({name:i ? "Audio (right)" : "Audio (left)", label:`Generator ${i+1} audio output`, opts:[[true,"ON"],[false,"OFF"]],
+      get:()=>S.spk[i], set:v=>{ S.spk[i] = v; if (v) ensureCtx(); }}), 40, 5),
+    onAxis(bnc(`Output ${i+1}`), 32, 4)
+  );
+  return r;
+}
+document.getElementById("slot-gen").append(genRow(0), genRow(1));
+document.getElementById("slot-vol").append(
+  knob({name:"Volume", label:"Audio output volume", size:40, pad:8, min:0, max:1, get:()=>S.vol, set:v=>S.vol=v, fmt:pct, def:()=>D0.vol}));
+
+const gdisp = document.getElementById("gdisp");
+CTL.push({sync(){
+  gdisp.innerHTML = S.ch.map((c, i) =>
+    `<span>${i+1} ${WAVES[c.wave]}${S.spk[i] ? " ♪" : ""}</span><span>${fixed(c.f,"Hz")}</span><span>${c.vpp.toFixed(2)} Vpp</span><span>${(c.off>=0?"+":"")+c.off.toFixed(2)} V</span>`).join("");
+}});
+
+function syncAll(){ for (const c of CTL) c.sync(); }
+function changed(){ syncAll(); if (!(S.trig.mode === "single" && single.done && S.mode !== "xy")) clearScreen(); cvG.style.opacity = S.power ? 1 : .35; pushGen(); releaseUnused(); }
+
+// ---------- Presets ----------
+const PRESETS = {
+  "Default": s => s,
+  "Lissajous 3:2": s => { s.mode="xy"; s.tdiv=2e-3; s.hpos=0;
+    Object.assign(s.ch[0],{wave:"sine",f:300,vpp:5,off:0,ph:0,vdiv:1,pos:0,coup:"DC"});
+    Object.assign(s.ch[1],{wave:"sine",f:200,vpp:5,off:0,ph:45,vdiv:1,pos:0,coup:"DC"}); },
+  "Beats": s => { s.mode="add"; s.tdiv=5e-3;
+    Object.assign(s.ch[0],{wave:"sine",f:1000,vpp:2,off:0,vdiv:1,pos:0});
+    Object.assign(s.ch[1],{wave:"sine",f:1100,vpp:2,off:0});
+    s.trig={src:0,level:0,slope:1,mode:"auto"}; },
+  "Noisy signal": s => { s.mode="add"; s.tdiv=5e-4;
+    Object.assign(s.ch[0],{wave:"sine",f:500,vpp:4,off:0,vdiv:1,pos:0});
+    Object.assign(s.ch[1],{wave:"noise",f:20000,vpp:.5,off:0}); s.persist=.85; },
+  "AC coupling": s => { s.mode="dual"; s.tdiv=5e-4;
+    Object.assign(s.ch[0],{wave:"pulse",f:1000,vpp:3,off:0,vdiv:1,pos:0,coup:"AC"});
+    Object.assign(s.ch[1],{wave:"pulse",f:1000,vpp:3,off:0,vdiv:1,pos:-3,coup:"DC",ph:0});
+    s.trig={src:1,level:1.5,slope:1,mode:"auto"}; },
+  "Z modulation": s => { s.mode="ch1"; s.tdiv=2e-4; s.z.src="g2";
+    Object.assign(s.ch[0],{wave:"sine",f:1000,vpp:4,off:0,vdiv:1,pos:0,coup:"DC"});
+    Object.assign(s.ch[1],{wave:"square",f:10000,vpp:5,off:2.5,ph:0}); },
+  "Delayed sweep": s => { s.mode="ch1"; s.tdiv=5e-4; s.tdivB=1e-5; s.delay=3.98; s.hmode="ai";
+    Object.assign(s.ch[0],{wave:"pulse",f:1000,vpp:3,off:0,vdiv:1,pos:-1.5,coup:"DC"});
+    s.trig={src:0,level:.5,slope:1,mode:"auto"}; },
+  "Slow sweep": s => { s.mode="dual"; s.tdiv=.5; s.persist=.97;
+    Object.assign(s.ch[0],{wave:"sine",f:.5,vpp:4,off:0,vdiv:1,pos:1.5,coup:"DC"});
+    Object.assign(s.ch[1],{wave:"square",f:.5,vpp:2,off:0,vdiv:1,pos:-2,coup:"DC"});
+    s.trig={src:0,level:0,slope:1,mode:"auto"}; }
+};
+const preEl = document.getElementById("presets");
+for (const [name, fn] of Object.entries(PRESETS)){
+  const btn = el("button", "pre", name); btn.type = "button";
+  btn.addEventListener("click", () => { const s = DEFAULTS(); s.spk = [...S.spk]; s.vol = S.vol; fn(s); S = s; changed(); });
+  preEl.append(btn);
+}
+
+// ---------- Main loop ----------
+const led = document.getElementById("led");
+let last = performance.now(), lastMeas = 0;
+function frame(now){
+  const dt = Math.min(.1, (now - last)/1000); last = now;
+  audT = audioNow();
+  if (audT !== null) sim = audT - .003; else sim += dt;
+  if (S.power){
+    if (S.trig.mode !== "single" || S.mode === "xy") fade(dt, S.persist);   // SINGLE keeps the captured sweep
+    if (S.mode === "xy") drawXY(); else drawYT();
+  } else { fade(dt, .85); trigd = false; }
+  led.classList.toggle("on", trigd && S.power);
+  readyLamp.classList.toggle("on", S.power && S.trig.mode === "single" && single.armed);
+  if (now - lastMeas > 300){ lastMeas = now; updateMeas(); }
+  requestAnimationFrame(frame);
+}
+syncAll(); resize();
+requestAnimationFrame(frame);
+if (document.documentElement.classList.contains("embed") && window.parent !== window){
+  const foot = document.querySelector("footer");
+  let lastH = 0;
+  const postHeight = force => {                 // tell the host page how tall the simulator is
+    const h = Math.ceil(foot.getBoundingClientRect().bottom + window.scrollY + 8);
+    if (force || h !== lastH){ lastH = h; window.parent.postMessage({type:"osc2-height", height:h}, "*"); }
+  };
+  new ResizeObserver(() => postHeight(false)).observe(document.body);
+  window.addEventListener("load", () => postHeight(true));
+  window.addEventListener("message", e => {      // the host asks again, e.g. when its script runs late
+    if (e.source === window.parent && e.data && e.data.type === "osc2-ping") postHeight(true);
+  });
+  let ticks = 0;                                 // repeat for half a minute: page optimisers may install the listener late
+  const timer = setInterval(() => { postHeight(true); if (++ticks >= 30) clearInterval(timer); }, 1000);
+  for (const a of document.querySelectorAll('a[href="help.html"], a[href="tips.html"]')){ a.target = "_blank"; a.rel = "noopener"; }
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,90 @@
+/*
+ * OSC-2 / FG-2 — dual-trace oscilloscope and function generator simulator
+ * Copyright (C) 2026 András Sümegi
+ * Free software under the GNU General Public License v3.0 or later, WITHOUT ANY WARRANTY;
+ * see <https://www.gnu.org/licenses/>.
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+/* Shared style of the OSC-2 / FG-2 manual pages: an instrument manual on warm paper, navy "silkscreen" ink. */
+:root{
+  color-scheme:light;
+  --paper:#f5f1e7; --paper-2:#ece6d7; --ink:#1d2433; --ink-soft:#586072; --rule:#d8d0bd;
+  --accent:#1d2a48; --accent-ink:#ffffff; --red:#b4391f; --key-bg:#e6e0d0; --key-ink:#1d2a48;
+  --note-bg:#fbf3dc; --note-rule:#d9b65a; --link:#24518f;
+  --f-head:"PT Sans Narrow","Arial Narrow",Arial,sans-serif;
+  --f-body:"PT Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#15181c; --paper-2:#1c2025; --ink:#e2e5e8; --ink-soft:#9aa2ab; --rule:#2e343b;
+  --accent:#a9bde6; --accent-ink:#11151b; --red:#ff8d74; --key-bg:#262b32; --key-ink:#c9d6f2;
+  --note-bg:#242016; --note-rule:#7d6a33; --link:#9cc0ff; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#15181c; --paper-2:#1c2025; --ink:#e2e5e8; --ink-soft:#9aa2ab; --rule:#2e343b;
+  --accent:#a9bde6; --accent-ink:#11151b; --red:#ff8d74; --key-bg:#262b32; --key-ink:#c9d6f2;
+  --note-bg:#242016; --note-rule:#7d6a33; --link:#9cc0ff; color-scheme:dark}
+
+*{box-sizing:border-box}
+html{scroll-padding-top:84px}
+@media (max-width:600px){.bar{position:static}html{scroll-padding-top:12px}}
+body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.6 var(--f-body)}
+a{color:var(--link)}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--accent);color:var(--accent-ink)}
+.bar-in{max-width:1080px;margin:0 auto;padding:10px 16px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px}
+.brand{font:700 1.05rem/1 var(--f-head);letter-spacing:.14em;text-transform:uppercase;white-space:nowrap}
+.bar nav{display:flex;flex-wrap:wrap;gap:4px 14px;font:600 .95rem/1.2 var(--f-head);letter-spacing:.04em}
+.bar nav a{color:var(--accent-ink);opacity:.85;text-decoration:none;border-bottom:1px solid transparent}
+.bar nav a:hover{opacity:1;border-bottom-color:currentColor}
+.bar nav a[aria-current="page"]{opacity:1;border-bottom-color:currentColor}
+.langs{margin-left:auto;display:flex;gap:2px;background:rgba(255,255,255,.12);border-radius:6px;padding:2px}
+.langs button{font:700 .85rem/1 var(--f-head);letter-spacing:.08em;border:0;border-radius:4px;padding:6px 9px;cursor:pointer;
+  background:transparent;color:var(--accent-ink)}
+.langs button[aria-pressed="true"]{background:var(--accent-ink);color:var(--accent)}
+.langs button:focus-visible,.bar a:focus-visible{outline:2px solid var(--accent-ink);outline-offset:2px}
+
+main{max-width:1080px;margin:0 auto;padding-inline:16px;padding-block:28px 56px;
+  display:grid;grid-template-columns:220px minmax(0,1fr);gap:40px;align-items:start}
+@media (max-width:860px){main{grid-template-columns:minmax(0,1fr);gap:16px}}
+.content{min-width:0}
+.shared{min-width:0;max-width:100%}
+.toc{position:sticky;top:80px;font:500 .95rem/1.35 var(--f-head);min-width:0}
+@media (max-width:860px){.toc{position:static;border-bottom:1px solid var(--rule);padding-bottom:12px}}
+.toc h2{font:700 .8rem/1 var(--f-head);letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 8px}
+.toc ol{margin:0;padding-left:1.3em;display:grid;gap:5px}
+.toc a{text-decoration:none;color:var(--ink)}
+.toc a:hover{color:var(--link);text-decoration:underline}
+
+article{min-width:0;max-width:72ch}
+article > header h1{font:700 2.1rem/1.15 var(--f-head);letter-spacing:.02em;margin:0 0 6px;text-wrap:balance}
+article > header p{margin:0 0 8px;color:var(--ink-soft);font-size:1.02rem}
+h2{font:700 1.45rem/1.2 var(--f-head);letter-spacing:.03em;margin:2.2em 0 .5em;padding-top:.6em;border-top:2px solid var(--accent);text-wrap:balance}
+h3{font:700 1.12rem/1.25 var(--f-head);letter-spacing:.03em;margin:1.5em 0 .3em;text-wrap:balance}
+p{margin:.55em 0}
+ul,ol{padding-left:1.35em;margin:.5em 0}
+li{margin:.25em 0}
+dl.ctl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:.7em 0}
+dl.ctl dt{white-space:nowrap}
+dl.ctl dd{margin:0}
+@media (max-width:520px){dl.ctl{grid-template-columns:1fr}dl.ctl dd{margin:0 0 6px}}
+.k{font:600 .78em/1.2 var(--f-mono);letter-spacing:.02em;background:var(--key-bg);color:var(--key-ink);border:1px solid var(--rule);
+  border-radius:3px;padding:1px 5px;white-space:nowrap}
+.note{background:var(--note-bg);border-left:4px solid var(--note-rule);padding:10px 14px;border-radius:0 6px 6px 0;margin:1em 0}
+.note p{margin:.3em 0}
+.formula{font:500 1rem/1.5 var(--f-mono);background:var(--paper-2);border-radius:6px;padding:8px 12px;margin:.6em 0;overflow-x:auto;white-space:nowrap}
+.steps{counter-reset:s;list-style:none;padding-left:0}
+.steps > li{counter-increment:s;position:relative;padding-left:2.1em;margin:.5em 0}
+.steps > li::before{content:counter(s);position:absolute;left:0;top:.1em;width:1.5em;height:1.5em;border-radius:50%;
+  background:var(--accent);color:var(--accent-ink);font:700 .8rem/1.5em var(--f-head);text-align:center}
+.tip{border:1px solid var(--rule);border-radius:8px;padding:4px 18px 12px;margin:1.2em 0;background:var(--paper)}
+.tip h2{border-top:0;margin-top:.6em;padding-top:0}
+.tip .tag{display:inline-block;font:700 .72rem/1 var(--f-head);letter-spacing:.12em;text-transform:uppercase;color:var(--red);margin-top:10px}
+.gloss{overflow-x:auto;margin:1em 0;border:1px solid var(--rule);border-radius:8px}
+.gloss table{border-collapse:collapse;width:100%;min-width:720px;font-size:.92rem}
+.gloss th,.gloss td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+.gloss thead th{background:var(--paper-2);font:700 .8rem/1.2 var(--f-head);letter-spacing:.12em;text-transform:uppercase;position:sticky;top:0}
+.gloss tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--paper-2) 45%,transparent)}
+.lit li{margin:.45em 0}
+footer{max-width:1080px;margin:0 auto;padding:0 16px 40px;color:var(--ink-soft);font-size:.9rem}
+[hidden]{display:none!important}
+.legal{margin-top:.6em;font-size:.82rem}
+.legal a{color:inherit}

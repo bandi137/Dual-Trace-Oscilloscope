@@ -1,0 +1,745 @@
+<!doctype html>
+<!--
+  OSC-2 / FG-2 — dual-trace oscilloscope and function generator simulator
+  Copyright (C) 2026 András Sümegi
+  This program is free software: you can redistribute it and/or modify it under the terms of the
+  GNU General Public License as published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version. It is distributed WITHOUT ANY WARRANTY; see
+  <https://www.gnu.org/licenses/>.
+  SPDX-License-Identifier: GPL-3.0-or-later
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>OSC-2 Measurement Tips</title>
+<meta name="description" content="Measurement tips for the OSC-2 oscilloscope simulator and FG-2 function generator, in English, German, Russian and Hungarian.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=PT+Sans:ital,wght@0,400;0,700;1,400&family=PT+Sans+Narrow:wght@400;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<link rel="stylesheet" href="manual.css">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<div class="bar"><div class="bar-in">
+  <span class="brand">OSC-2 · FG-2</span>
+  <nav aria-label="Pages">
+    <a href="./">
+      <span data-l="en">Oscilloscope</span><span data-l="de" hidden>Oszilloskop</span><span data-l="ru" hidden>Осциллограф</span><span data-l="hu" hidden>Oszcilloszkóp</span></a>
+    <a href="help.html" data-keep-lang>
+      <span data-l="en">Manual</span><span data-l="de" hidden>Bedienungsanleitung</span><span data-l="ru" hidden>Руководство</span><span data-l="hu" hidden>Kezelési útmutató</span></a>
+    <a href="tips.html" aria-current="page" data-keep-lang>
+      <span data-l="en">Measurement tips</span><span data-l="de" hidden>Messtipps</span><span data-l="ru" hidden>Советы по измерениям</span><span data-l="hu" hidden>Mérési tippek</span></a>
+  </nav>
+  <div class="langs" role="group" aria-label="Language">
+    <button type="button" data-lang="en" title="English" lang="en">EN</button>
+    <button type="button" data-lang="de" title="Deutsch" lang="de">DE</button>
+    <button type="button" data-lang="ru" title="Русский" lang="ru">RU</button>
+    <button type="button" data-lang="hu" title="Magyar" lang="hu">HU</button>
+  </div>
+</div></div>
+
+<main>
+<nav class="toc" id="toc" aria-label="Contents"></nav>
+<div class="content">
+
+<!-- ======================================================================= ENGLISH -->
+<article data-lang="en" lang="en" data-title="OSC-2 Measurement Tips">
+<header>
+  <h1>Measurement tips</h1>
+  <p>Practical procedures for the OSC-2 and FG-2. Tips marked <em>Live audio</em> need the sound card, so they work only when the page runs on its own site (for example on Vercel), not in the preview inside Claude. Control names are those printed on the panel; see the <a href="help.html#en" data-keep-lang>manual</a> for details.</p>
+</header>
+
+<section class="tip"><span class="tag">With the generator</span>
+<h2 id="en-stable">A stable picture in four steps</h2>
+<ol class="steps">
+  <li>Start in <span class="k">AUTO</span>: a trace is always visible, even without a trigger.</li>
+  <li>Set <span class="k">SOURCE</span> to the channel that carries the signal you want to keep still.</li>
+  <li>Turn <span class="k">LEVEL</span> until it lies inside the signal — the <span class="k">TRIG'D</span> lamp lights and the picture stops.</li>
+  <li>Choose <span class="k">SLOPE</span> to start on the rising or falling edge. For a clean, repetitive signal switch to <span class="k">NORM</span>: the screen then shows only properly triggered sweeps.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">With the generator</span>
+<h2 id="en-volt">Measuring voltage</h2>
+<p>Count the vertical divisions and multiply by the deflection coefficient:</p>
+<div class="formula">Vpp = (divisions) × VOLTS/DIV</div>
+<ol class="steps">
+  <li>Set <span class="k">COUPLING</span> to <span class="k">GND</span> and move the trace with <span class="k">POSITION ↕</span> onto a graticule line — this is your 0 V reference.</li>
+  <li>Switch back to <span class="k">DC</span> and choose <span class="k">VOLTS/DIV</span> so that the signal is four to six divisions high: the reading is then most accurate.</li>
+  <li>Example (preset <em>Default</em>): the CH1 sine spans 4 divisions at 1 V/div, so Vpp = 4 V. For a sine the RMS value is Vpp / (2√2) = 1.41 V — compare with the readings card.</li>
+  <li>DC level: set the generator <span class="k">OFFSET</span> to +1.5 V. In <span class="k">DC</span> the trace rises 1.5 divisions above the reference; in <span class="k">AC</span> it returns to the reference, because AC coupling removes the DC component.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">With the generator</span>
+<h2 id="en-time">Measuring period and frequency</h2>
+<div class="formula">T = (divisions) × TIME/DIV &nbsp;&nbsp; f = 1 / T</div>
+<ol class="steps">
+  <li>Measure between corresponding points of the waveform, preferably zero crossings on the horizontal centre line, where the trace is steep.</li>
+  <li>Measure over several periods and divide: the error of reading is shared among them. Example (preset <em>Default</em>, CH2): at 0.2 ms/div four periods of the 2 kHz square wave span 10 divisions, so T = 10 × 0.2 ms / 4 = 0.5 ms and f = 2 kHz.</li>
+  <li>For a fine reading of a single edge, switch on <span class="k">×10</span>: the effective time coefficient is TIME/DIV ÷ 10.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">With the generator</span>
+<h2 id="en-rise">Rise time with the 10 % and 90 % lines</h2>
+<p>Rise time is the time the signal needs to rise from 10 % to 90 % of its full amplitude. The dashed graticule lines are made for this: the signal must span exactly the 5 divisions between the <em>0 %</em> and <em>100</em> lines.</p>
+<ol class="steps">
+  <li>Use a signal with a known slope: GEN 1 <span class="k">WAVEFORM</span> triangle, 1 kHz, <span class="k">AMPLITUDE</span> 5 Vpp, <span class="k">OFFSET</span> 0; CH1 at 1 V/div, <span class="k">POSITION ↕</span> 0. The triangle now runs exactly from the 0 % to the 100 % line.</li>
+  <li>Set <span class="k">A TIME/DIV</span> to 0.1 ms and trigger on the rising slope.</li>
+  <li>Read the horizontal distance between the crossings of the <em>10</em> and <em>90</em> lines: 4 divisions = 0.4 ms. Check: the ramp rises 5 V in 0.5 ms, and 80 % of that takes 0.4 ms.</li>
+  <li>The OSC-2 has no amplitude fine control; set the 5 divisions with the generator <span class="k">AMPLITUDE</span>. On a real instrument the measured value also contains the rise time of the oscilloscope itself: t<sub>signal</sub> = √(t<sub>measured</sub>² − t<sub>scope</sub>²). Here t<sub>scope</sub> = 0.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">With the generator</span>
+<h2 id="en-phase">Phase difference — dual-trace method</h2>
+<div class="formula">φ = 360° × Δt / T</div>
+<ol class="steps">
+  <li>Both outputs sine, 1 kHz, 4 Vpp; GEN 2 <span class="k">PHASE</span> 45°. <span class="k">MODE</span> <span class="k">DUAL</span>, both channels 1 V/div, both traces centred (set the zero lines with <span class="k">GND</span>).</li>
+  <li><span class="k">A TIME/DIV</span> 0.1 ms: one period T = 1 ms = 10 divisions.</li>
+  <li>Measure Δt between the rising zero crossings of the two traces: 1.25 divisions = 0.125 ms, so φ = 360° × 0.125 / 1 = 45°. CH2 crosses first: it leads.</li>
+  <li>For small phase angles use <span class="k">×10</span> to read Δt more precisely.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">With the generator</span>
+<h2 id="en-ellipse">Phase difference — Lissajous ellipse</h2>
+<div class="formula">sin φ = a / b</div>
+<ol class="steps">
+  <li>Same setup as above (equal frequencies), <span class="k">MODE</span> <span class="k">X-Y</span>, both channels 1 V/div, both centred; GEN 2 <span class="k">PHASE</span> 30°.</li>
+  <li>Measure <em>a</em>, the distance between the two points where the ellipse crosses the vertical centre line, and <em>b</em>, its total height.</li>
+  <li>Here a = 2 divisions and b = 4 divisions: sin φ = 0.5, φ = 30°. A straight line means 0° or 180°; with equal amplitudes a circle means 90°.</li>
+  <li>The ellipse does not show the sign of the phase difference; use the dual-trace method to see which signal leads.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">With the generator</span>
+<h2 id="en-ratio">Frequency ratio with Lissajous figures</h2>
+<div class="formula">fx : fy = (touch points on a vertical side) : (touch points on the top)</div>
+<ol class="steps">
+  <li>Preset <em>Lissajous 3:2</em>: CH1 (X) 300 Hz, CH2 (Y) 200 Hz.</li>
+  <li>Count where the figure touches the right side (3) and the top (2): fx : fy = 3 : 2. The XY ratio card confirms it.</li>
+  <li>If the figure is an open curve that retraces itself, the count is wrong — change one <span class="k">PHASE</span> slightly until the figure closes.</li>
+  <li>If the figure slowly turns, the ratio is not exactly whole: the frequencies drift against each other.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">With the generator</span>
+<h2 id="en-beats">Beats</h2>
+<ol class="steps">
+  <li>Preset <em>Beats</em>: 1000 Hz and 1100 Hz, equal amplitude, <span class="k">MODE</span> <span class="k">ADD</span>, 5 ms/div.</li>
+  <li>The envelope of the sum repeats with the difference frequency: f<sub>beat</sub> = |f<sub>1</sub> − f<sub>2</sub>| = 100 Hz, i.e. every 10 ms = 2 divisions.</li>
+  <li>Turn one generator's <span class="k">FREQUENCY</span> closer to the other: the beats slow down. With both <span class="k">AUDIO</span> switches on you can also hear them.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">With the generator</span>
+<h2 id="en-delta">Precise time intervals with the delayed sweep</h2>
+<div class="formula">Δt = (DELAY₂ − DELAY₁) × A TIME/DIV</div>
+<ol class="steps">
+  <li>Preset <em>Delayed sweep</em>: a 1 kHz pulse, A 0.5 ms/div, B 10 µs/div, <span class="k">DISPLAY</span> <span class="k">A INT</span>. The bright section shows what B will display.</li>
+  <li>Move the bright section onto a rising edge with <span class="k">DELAY</span>, then switch <span class="k">DISPLAY</span> to <span class="k">B</span>. Place the edge on a chosen graticule line and note DELAY₁ (here 3.98).</li>
+  <li>Turn <span class="k">DELAY</span> back to the previous edge and put it on the same line: DELAY₂ = 1.98. Δt = 2.00 × 0.5 ms = 1.000 ms, so f = 1.000 kHz.</li>
+  <li>Use Shift with the mouse wheel for 0.02-division steps. Because B is 50 times faster than A, the edge position is read much more precisely than on the A sweep.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">With the generator</span>
+<h2 id="en-zmark">Time markers with the Z input</h2>
+<ol class="steps">
+  <li>Preset <em>Z modulation</em>: GEN 2 gives a 10 kHz square wave from 0 V to +5 V (5 Vpp, <span class="k">OFFSET</span> +2.5 V) into the <span class="k">Z INPUT</span>.</li>
+  <li>Every +5 V half-period blanks the beam: the trace becomes a dashed line with one dash and gap every 0.1 ms — at 0.2 ms/div, two per division.</li>
+  <li>Use them as a time scale, or set GEN 2 to 1 kHz for 1 ms markers. A negative Z voltage brightens instead of blanking.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">With the generator · Live audio</span>
+<h2 id="en-ext">External trigger for noisy signals</h2>
+<ol class="steps">
+  <li>Preset <em>Noisy signal</em>: the displayed sum is a sine with noise.</li>
+  <li>Set <span class="k">SOURCE</span> to <span class="k">EXT</span> and <span class="k">EXT TRIG IN</span> to <span class="k">GEN 1</span> (the clean sine): the picture stays still. With <span class="k">GEN 2</span> (the noise) as trigger it falls apart.</li>
+  <li>With live audio: GEN 1 plays a tone (<span class="k">AUDIO (LEFT)</span> on), CH1 <span class="k">INPUT</span> <span class="k">AUDIO IN</span> picks it up with the microphone, trigger <span class="k">EXT</span> from <span class="k">GEN 1</span>. However weak the microphone signal, the picture is synchronous with the generator.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">Live audio</span>
+<h2 id="en-single">Capturing a single event (clap, click)</h2>
+<ol class="steps">
+  <li>CH1 <span class="k">INPUT</span> <span class="k">AUDIO IN</span>, <span class="k">VOLTS/DIV</span> 50 mV, <span class="k">A TIME/DIV</span> 5 ms.</li>
+  <li>Trigger <span class="k">SOURCE</span> <span class="k">CH1</span>, <span class="k">LEVEL</span> a little above the background noise, <span class="k">MODE</span> <span class="k">SINGLE</span>.</li>
+  <li>Press <span class="k">SINGLE RESET</span> (READY lights) and clap. One sweep is recorded and stays on the screen.</li>
+  <li>Move the trace right with <span class="k">POSITION ↔</span> to see the moments just before the trigger as well.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">Live audio</span>
+<h2 id="en-sound">Measuring the speed of sound</h2>
+<ol class="steps">
+  <li>GEN 1: pulse, 5 Hz, moderate <span class="k">VOLUME</span>, <span class="k">AUDIO (LEFT)</span> on — each rising edge makes a click in the loudspeaker.</li>
+  <li>CH1 <span class="k">AUDIO IN</span> (microphone); trigger <span class="k">EXT</span> from <span class="k">GEN 1</span>, <span class="k">SLOPE</span> <span class="k">+ ↑</span>, <span class="k">NORM</span>; <span class="k">A TIME/DIV</span> 10 ms. The click appears some tens of milliseconds after the trigger: the computer adds a constant audio latency.</li>
+  <li>Switch <span class="k">DISPLAY</span> to <span class="k">A INT</span>, move the bright section onto the click with <span class="k">DELAY</span>, then switch to <span class="k">B</span> with <span class="k">B TIME/DIV</span> 1 ms.</li>
+  <li>Note where the click starts, then move the microphone 34 cm further from the loudspeaker: the click moves about 1 ms (1 division) to the right — sound travels about 343 m/s at 20 °C. Only this change is meaningful, not the absolute delay.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">Live audio</span>
+<h2 id="en-stereo">Stereo picture of music (X-Y)</h2>
+<ol class="steps">
+  <li>CH1 and CH2 <span class="k">INPUT</span> <span class="k">AUDIO OUT</span> (left channel → X, right → Y), <span class="k">MODE</span> <span class="k">X-Y</span>, 0.1–0.2 V/div, <span class="k">A TIME/DIV</span> 5–10 ms, high <span class="k">PERSISTENCE</span>.</li>
+  <li>A mono signal draws a line rising at 45°; a wide stereo image a cloud; a phase-reversed channel the other diagonal.</li>
+  <li>Studio phase meters (goniometers) rotate this picture by 45° so that mono is vertical.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">Live audio</span>
+<h2 id="en-card">Examining your sound card</h2>
+<ol class="steps">
+  <li>Connect the headphone output to the line input with a cable (or hold the microphone close to the loudspeaker). GEN 1 square wave to <span class="k">AUDIO (LEFT)</span>, CH1 <span class="k">AUDIO IN</span>.</li>
+  <li>At 50 Hz the flat tops of the square wave sag: the sound card is AC-coupled, like the <span class="k">AC</span> coupling of a real oscilloscope at low frequencies.</li>
+  <li>At 5 kHz the edges are rounded. Measure the 10–90 % rise time with <span class="k">×10</span> and estimate the bandwidth: B ≈ 0.35 / t<sub>r</sub>.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">General</span>
+<h2 id="en-mistakes">Typical mistakes</h2>
+<ul>
+  <li><span class="k">COUPLING</span> left on <span class="k">GND</span> — a flat line.</li>
+  <li>Trigger <span class="k">SOURCE</span> on a channel without signal, or <span class="k">LEVEL</span> outside the signal: <span class="k">TRIG'D</span> stays dark; in <span class="k">AUTO</span> the picture runs, in <span class="k">NORM</span> it disappears.</li>
+  <li><span class="k">SINGLE</span> mode waiting for a trigger (READY lit) — the screen stays empty until the event comes.</li>
+  <li>In <span class="k">ADD</span> the sum uses the CH1 <span class="k">VOLTS/DIV</span>; in <span class="k">X-Y</span> too short an <span class="k">A TIME/DIV</span> draws only part of the figure.</li>
+  <li><span class="k">×10</span> or <span class="k">DISPLAY B</span> forgotten on: the time scale is not what you think.</li>
+</ul>
+</section>
+</article>
+
+<!-- ======================================================================= DEUTSCH -->
+<article data-lang="de" lang="de" data-title="OSC-2 Messtipps" hidden>
+<header>
+  <h1>Messtipps</h1>
+  <p>Praktische Messverfahren für OSC-2 und FG-2. Tipps mit dem Vermerk <em>Live-Audio</em> brauchen die Soundkarte und funktionieren daher nur, wenn die Seite auf ihrer eigenen Website läuft (z. B. bei Vercel), nicht in der Vorschau in Claude. Die Bedienelemente sind so benannt, wie sie auf der Frontplatte stehen; Einzelheiten in der <a href="help.html#de" data-keep-lang>Bedienungsanleitung</a>.</p>
+</header>
+
+<section class="tip"><span class="tag">Mit dem Generator</span>
+<h2 id="de-stable">Ein stehendes Bild in vier Schritten</h2>
+<ol class="steps">
+  <li>Mit <span class="k">AUTO</span> beginnen: Es ist immer eine Spur zu sehen, auch ohne Triggerung.</li>
+  <li>Die Triggerquelle <span class="k">SOURCE</span> auf den Kanal stellen, dessen Signal stillstehen soll.</li>
+  <li>Den Triggerpegel <span class="k">LEVEL</span> so drehen, dass er innerhalb des Signals liegt — die Lampe <span class="k">TRIG'D</span> leuchtet, das Bild steht.</li>
+  <li>Mit <span class="k">SLOPE</span> die steigende oder fallende Flanke wählen. Bei einem sauberen, periodischen Signal auf <span class="k">NORM</span> schalten: dann erscheinen nur richtig getriggerte Ablenkungen.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">Mit dem Generator</span>
+<h2 id="de-volt">Spannungsmessung</h2>
+<p>Die senkrechten Teile zählen und mit dem Ablenkkoeffizienten multiplizieren:</p>
+<div class="formula">Uss = (Teile) × VOLTS/DIV</div>
+<ol class="steps">
+  <li><span class="k">COUPLING</span> auf <span class="k">GND</span> stellen und die Spur mit <span class="k">POSITION ↕</span> auf eine Rasterlinie legen — das ist der 0-V-Bezug.</li>
+  <li>Zurück auf <span class="k">DC</span> und <span class="k">VOLTS/DIV</span> so wählen, dass das Signal vier bis sechs Teile hoch ist: dann ist die Ablesung am genauesten.</li>
+  <li>Beispiel (Preset <em>Default</em>): Der Sinus auf CH1 ist bei 1 V/Div 4 Teile hoch, also Uss = 4 V. Beim Sinus ist der Effektivwert Uss / (2√2) = 1,41 V — mit der Messwertkarte vergleichen.</li>
+  <li>Gleichspannungsanteil: <span class="k">OFFSET</span> des Generators auf +1,5 V stellen. Bei <span class="k">DC</span> liegt die Spur 1,5 Teile über dem Bezug; bei <span class="k">AC</span> kehrt sie zum Bezug zurück, weil die AC-Kopplung den Gleichanteil abtrennt.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">Mit dem Generator</span>
+<h2 id="de-time">Perioden- und Frequenzmessung</h2>
+<div class="formula">T = (Teile) × TIME/DIV &nbsp;&nbsp; f = 1 / T</div>
+<ol class="steps">
+  <li>Zwischen einander entsprechenden Punkten der Kurve messen, am besten an Nulldurchgängen auf der waagerechten Mittellinie, wo die Spur steil ist.</li>
+  <li>Über mehrere Perioden messen und teilen: der Ablesefehler verteilt sich. Beispiel (Preset <em>Default</em>, CH2): bei 0,2 ms/Div erstrecken sich vier Perioden des 2-kHz-Rechtecks über 10 Teile, also T = 10 × 0,2 ms / 4 = 0,5 ms und f = 2 kHz.</li>
+  <li>Für die genaue Ablesung einer einzelnen Flanke <span class="k">×10</span> einschalten: der wirksame Zeitkoeffizient ist TIME/DIV ÷ 10.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">Mit dem Generator</span>
+<h2 id="de-rise">Anstiegszeit mit den 10-%- und 90-%-Linien</h2>
+<p>Die Anstiegszeit ist die Zeit, in der das Signal von 10 % auf 90 % seiner vollen Amplitude ansteigt. Dafür sind die gestrichelten Rasterlinien gedacht: das Signal muss genau die 5 Teile zwischen der <em>0 %</em>- und der <em>100</em>-Linie einnehmen.</p>
+<ol class="steps">
+  <li>Ein Signal mit bekannter Steigung verwenden: GEN 1 <span class="k">WAVEFORM</span> Dreieck, 1 kHz, <span class="k">AMPLITUDE</span> 5 Vss, <span class="k">OFFSET</span> 0; CH1 mit 1 V/Div, <span class="k">POSITION ↕</span> 0. Das Dreieck verläuft jetzt genau von der 0-%- zur 100-%-Linie.</li>
+  <li><span class="k">A TIME/DIV</span> auf 0,1 ms stellen und auf die steigende Flanke triggern.</li>
+  <li>Den waagerechten Abstand zwischen den Schnittpunkten mit der <em>10</em>- und der <em>90</em>-Linie ablesen: 4 Teile = 0,4 ms. Probe: die Rampe steigt in 0,5 ms um 5 V, 80 % davon dauern 0,4 ms.</li>
+  <li>Das OSC-2 hat keinen Feinsteller für den Ablenkkoeffizienten; die 5 Teile mit <span class="k">AMPLITUDE</span> am Generator einstellen. Beim echten Gerät enthält der Messwert auch die Anstiegszeit des Oszilloskops: t<sub>Signal</sub> = √(t<sub>gemessen</sub>² − t<sub>Oszilloskop</sub>²). Hier ist t<sub>Oszilloskop</sub> = 0.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">Mit dem Generator</span>
+<h2 id="de-phase">Phasendifferenz im Zweikanalbetrieb</h2>
+<div class="formula">φ = 360° × Δt / T</div>
+<ol class="steps">
+  <li>Beide Ausgänge Sinus, 1 kHz, 4 Vss; GEN 2 <span class="k">PHASE</span> 45°. <span class="k">MODE</span> <span class="k">DUAL</span>, beide Kanäle 1 V/Div, beide Spuren in der Mitte (Nulllinien mit <span class="k">GND</span> einstellen).</li>
+  <li><span class="k">A TIME/DIV</span> 0,1 ms: eine Periode T = 1 ms = 10 Teile.</li>
+  <li>Δt zwischen den steigenden Nulldurchgängen der beiden Spuren messen: 1,25 Teile = 0,125 ms, also φ = 360° × 0,125 / 1 = 45°. CH2 geht zuerst durch null: es eilt vor.</li>
+  <li>Bei kleinen Phasenwinkeln Δt mit <span class="k">×10</span> genauer ablesen.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">Mit dem Generator</span>
+<h2 id="de-ellipse">Phasendifferenz mit der Lissajous-Ellipse</h2>
+<div class="formula">sin φ = a / b</div>
+<ol class="steps">
+  <li>Aufbau wie oben (gleiche Frequenzen), <span class="k">MODE</span> <span class="k">X-Y</span>, beide Kanäle 1 V/Div, beide zentriert; GEN 2 <span class="k">PHASE</span> 30°.</li>
+  <li><em>a</em> messen, den Abstand der beiden Punkte, in denen die Ellipse die senkrechte Mittellinie schneidet, und <em>b</em>, ihre Gesamthöhe.</li>
+  <li>Hier ist a = 2 Teile und b = 4 Teile: sin φ = 0,5, φ = 30°. Eine Gerade bedeutet 0° oder 180°; bei gleichen Amplituden bedeutet ein Kreis 90°.</li>
+  <li>Die Ellipse zeigt das Vorzeichen der Phasendifferenz nicht; welches Signal voreilt, zeigt der Zweikanalbetrieb.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">Mit dem Generator</span>
+<h2 id="de-ratio">Frequenzverhältnis mit Lissajous-Figuren</h2>
+<div class="formula">fx : fy = (Berührungspunkte an einer senkrechten Seite) : (Berührungspunkte oben)</div>
+<ol class="steps">
+  <li>Preset <em>Lissajous 3:2</em>: CH1 (X) 300 Hz, CH2 (Y) 200 Hz.</li>
+  <li>Zählen, wie oft die Figur die rechte Seite (3) und die obere Seite (2) berührt: fx : fy = 3 : 2. Die Karte „XY ratio“ bestätigt es.</li>
+  <li>Ist die Figur eine offene, in sich zurücklaufende Kurve, stimmt die Zählung nicht — eine <span class="k">PHASE</span> etwas verstellen, bis sich die Figur schließt.</li>
+  <li>Dreht sich die Figur langsam, ist das Verhältnis nicht genau ganzzahlig: die Frequenzen laufen gegeneinander.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">Mit dem Generator</span>
+<h2 id="de-beats">Schwebung</h2>
+<ol class="steps">
+  <li>Preset <em>Beats</em>: 1000 Hz und 1100 Hz mit gleicher Amplitude, <span class="k">MODE</span> <span class="k">ADD</span>, 5 ms/Div.</li>
+  <li>Die Hüllkurve der Summe wiederholt sich mit der Differenzfrequenz: f<sub>S</sub> = |f<sub>1</sub> − f<sub>2</sub>| = 100 Hz, also alle 10 ms = 2 Teile.</li>
+  <li><span class="k">FREQUENCY</span> eines Generators näher an die des anderen bringen: die Schwebung wird langsamer. Mit beiden <span class="k">AUDIO</span>-Schaltern ist sie auch zu hören.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">Mit dem Generator</span>
+<h2 id="de-delta">Genaue Zeitintervalle mit der verzögerten Zeitbasis</h2>
+<div class="formula">Δt = (DELAY₂ − DELAY₁) × A TIME/DIV</div>
+<ol class="steps">
+  <li>Preset <em>Delayed sweep</em>: ein 1-kHz-Impuls, A 0,5 ms/Div, B 10 µs/Div, <span class="k">DISPLAY</span> <span class="k">A INT</span>. Der aufgehellte Abschnitt zeigt, was B darstellen wird.</li>
+  <li>Den aufgehellten Abschnitt mit <span class="k">DELAY</span> auf eine steigende Flanke schieben, dann <span class="k">DISPLAY</span> auf <span class="k">B</span>. Die Flanke auf eine gewählte Rasterlinie legen und DELAY₁ notieren (hier 3,98).</li>
+  <li><span class="k">DELAY</span> zur vorhergehenden Flanke zurückdrehen und sie auf dieselbe Linie legen: DELAY₂ = 1,98. Δt = 2,00 × 0,5 ms = 1,000 ms, also f = 1,000 kHz.</li>
+  <li>Umschalttaste mit Mausrad ergibt Schritte von 0,02 Teilen. Da B 50-mal schneller ist als A, lässt sich die Lage der Flanke viel genauer ablesen als bei der A-Ablenkung.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">Mit dem Generator</span>
+<h2 id="de-zmark">Zeitmarken mit dem Z-Eingang</h2>
+<ol class="steps">
+  <li>Preset <em>Z modulation</em>: GEN 2 liefert ein 10-kHz-Rechteck von 0 V bis +5 V (5 Vss, <span class="k">OFFSET</span> +2,5 V) an den <span class="k">Z INPUT</span>.</li>
+  <li>Jede +5-V-Halbperiode dunkelt den Strahl: die Spur wird zur gestrichelten Linie, mit einem Strich und einer Lücke je 0,1 ms — bei 0,2 ms/Div zwei je Teil.</li>
+  <li>Als Zeitmaßstab verwenden oder GEN 2 auf 1 kHz stellen für 1-ms-Marken. Eine negative Z-Spannung hellt auf statt zu dunkeln.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">Mit dem Generator · Live-Audio</span>
+<h2 id="de-ext">Externe Triggerung bei verrauschten Signalen</h2>
+<ol class="steps">
+  <li>Preset <em>Noisy signal</em>: die dargestellte Summe ist ein Sinus mit Rauschen.</li>
+  <li><span class="k">SOURCE</span> auf <span class="k">EXT</span> und <span class="k">EXT TRIG IN</span> auf <span class="k">GEN 1</span> (der saubere Sinus): das Bild steht. Mit <span class="k">GEN 2</span> (dem Rauschen) als Trigger zerfällt es.</li>
+  <li>Mit Live-Audio: GEN 1 spielt einen Ton (<span class="k">AUDIO (LEFT)</span> ein), CH1 <span class="k">INPUT</span> <span class="k">AUDIO IN</span> nimmt ihn mit dem Mikrofon auf, Triggerung <span class="k">EXT</span> von <span class="k">GEN 1</span>. Wie schwach das Mikrofonsignal auch ist, das Bild läuft synchron zum Generator.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">Live-Audio</span>
+<h2 id="de-single">Ein einmaliges Ereignis aufnehmen (Klatschen, Knacken)</h2>
+<ol class="steps">
+  <li>CH1 <span class="k">INPUT</span> <span class="k">AUDIO IN</span>, <span class="k">VOLTS/DIV</span> 50 mV, <span class="k">A TIME/DIV</span> 5 ms.</li>
+  <li>Triggerquelle <span class="k">SOURCE</span> <span class="k">CH1</span>, <span class="k">LEVEL</span> etwas über dem Grundrauschen, <span class="k">MODE</span> <span class="k">SINGLE</span>.</li>
+  <li><span class="k">SINGLE RESET</span> drücken (READY leuchtet) und klatschen. Eine Ablenkung wird aufgenommen und bleibt auf dem Schirm.</li>
+  <li>Die Spur mit <span class="k">POSITION ↔</span> nach rechts schieben, um auch die Augenblicke kurz vor dem Triggerpunkt zu sehen.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">Live-Audio</span>
+<h2 id="de-sound">Messung der Schallgeschwindigkeit</h2>
+<ol class="steps">
+  <li>GEN 1: Impuls, 5 Hz, mäßige <span class="k">VOLUME</span>, <span class="k">AUDIO (LEFT)</span> ein — jede steigende Flanke erzeugt ein Knacken im Lautsprecher.</li>
+  <li>CH1 <span class="k">AUDIO IN</span> (Mikrofon); Triggerung <span class="k">EXT</span> von <span class="k">GEN 1</span>, <span class="k">SLOPE</span> <span class="k">+ ↑</span>, <span class="k">NORM</span>; <span class="k">A TIME/DIV</span> 10 ms. Das Knacken erscheint einige zehn Millisekunden nach dem Triggerpunkt: der Computer fügt eine konstante Audiolatenz hinzu.</li>
+  <li><span class="k">DISPLAY</span> auf <span class="k">A INT</span>, den aufgehellten Abschnitt mit <span class="k">DELAY</span> auf das Knacken schieben, dann auf <span class="k">B</span> umschalten, mit <span class="k">B TIME/DIV</span> 1 ms.</li>
+  <li>Den Beginn des Knackens notieren, dann das Mikrofon 34 cm weiter vom Lautsprecher entfernen: das Knacken rückt etwa 1 ms (1 Teil) nach rechts — Schall legt bei 20 °C etwa 343 m/s zurück. Aussagekräftig ist nur diese Änderung, nicht die absolute Verzögerung.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">Live-Audio</span>
+<h2 id="de-stereo">Stereobild von Musik (XY-Betrieb)</h2>
+<ol class="steps">
+  <li>CH1 und CH2 <span class="k">INPUT</span> <span class="k">AUDIO OUT</span> (linker Kanal → X, rechter → Y), <span class="k">MODE</span> <span class="k">X-Y</span>, 0,1–0,2 V/Div, <span class="k">A TIME/DIV</span> 5–10 ms, lange <span class="k">PERSISTENCE</span>.</li>
+  <li>Ein Monosignal zeichnet eine unter 45° ansteigende Gerade, ein breites Stereobild eine Wolke, ein verpolter Kanal die andere Diagonale.</li>
+  <li>Stereosichtgeräte (Goniometer) im Studio drehen dieses Bild um 45°, sodass Mono senkrecht steht.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">Live-Audio</span>
+<h2 id="de-card">Die Soundkarte untersuchen</h2>
+<ol class="steps">
+  <li>Kopfhörerausgang mit einem Kabel an den Line-Eingang anschließen (oder das Mikrofon nah an den Lautsprecher halten). GEN 1 Rechteck auf <span class="k">AUDIO (LEFT)</span>, CH1 <span class="k">AUDIO IN</span>.</li>
+  <li>Bei 50 Hz hängen die Dächer des Rechtecks durch: die Soundkarte ist wechselspannungsgekoppelt, wie die <span class="k">AC</span>-Kopplung eines echten Oszilloskops bei tiefen Frequenzen.</li>
+  <li>Bei 5 kHz sind die Flanken verrundet. Die 10–90-%-Anstiegszeit mit <span class="k">×10</span> messen und die Bandbreite abschätzen: B ≈ 0,35 / t<sub>r</sub>.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">Allgemein</span>
+<h2 id="de-mistakes">Typische Fehler</h2>
+<ul>
+  <li><span class="k">COUPLING</span> auf <span class="k">GND</span> vergessen — eine waagerechte Linie.</li>
+  <li>Triggerquelle <span class="k">SOURCE</span> auf einem Kanal ohne Signal oder <span class="k">LEVEL</span> außerhalb des Signals: <span class="k">TRIG'D</span> bleibt dunkel; bei <span class="k">AUTO</span> läuft das Bild, bei <span class="k">NORM</span> verschwindet es.</li>
+  <li><span class="k">SINGLE</span> wartet auf ein Triggerereignis (READY leuchtet) — der Schirm bleibt leer, bis das Ereignis kommt.</li>
+  <li>Bei <span class="k">ADD</span> gilt für die Summe der <span class="k">VOLTS/DIV</span>-Wert von CH1; bei <span class="k">X-Y</span> zeichnet ein zu kurzes <span class="k">A TIME/DIV</span> nur einen Teil der Figur.</li>
+  <li><span class="k">×10</span> oder <span class="k">DISPLAY B</span> eingeschaltet vergessen: der Zeitmaßstab ist nicht der vermutete.</li>
+</ul>
+</section>
+</article>
+
+<!-- ======================================================================= РУССКИЙ -->
+<article data-lang="ru" lang="ru" data-title="OSC-2 — советы по измерениям" hidden>
+<header>
+  <h1>Советы по измерениям</h1>
+  <p>Практические методики измерений с OSC-2 и FG-2. Советы с пометкой <em>Живой звук</em> требуют звуковой карты и работают только тогда, когда страница открыта на собственном сайте (например, на Vercel), а не в предпросмотре внутри Claude. Органы управления названы так, как они подписаны на панели; подробности — в <a href="help.html#ru" data-keep-lang>руководстве</a>.</p>
+</header>
+
+<section class="tip"><span class="tag">С генератором</span>
+<h2 id="ru-stable">Неподвижное изображение за четыре шага</h2>
+<ol class="steps">
+  <li>Начните с <span class="k">AUTO</span>: линия луча видна всегда, даже без синхронизации.</li>
+  <li>Установите источник синхронизации <span class="k">SOURCE</span> на канал с сигналом, который должен стоять неподвижно.</li>
+  <li>Вращайте <span class="k">LEVEL</span>, пока уровень не окажется внутри сигнала, — загорится лампа <span class="k">TRIG'D</span>, изображение остановится.</li>
+  <li>Переключателем <span class="k">SLOPE</span> выберите запуск по нарастанию или по спаду. Для чистого периодического сигнала перейдите в ждущий режим <span class="k">NORM</span>: на экране будут только правильно синхронизированные развёртки.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">С генератором</span>
+<h2 id="ru-volt">Измерение напряжения</h2>
+<p>Сосчитайте деления по вертикали и умножьте на коэффициент отклонения:</p>
+<div class="formula">U (размах) = (число делений) × VOLTS/DIV</div>
+<ol class="steps">
+  <li>Установите <span class="k">COUPLING</span> в положение <span class="k">GND</span> и ручкой <span class="k">POSITION ↕</span> совместите линию луча с линией сетки — это опорный уровень 0 В.</li>
+  <li>Вернитесь в <span class="k">DC</span> и выберите <span class="k">VOLTS/DIV</span> так, чтобы сигнал занимал четыре–шесть делений: так отсчёт наиболее точен.</li>
+  <li>Пример (предустановка <em>Default</em>): синусоида CH1 при 1 В/дел занимает 4 деления, т. е. размах 4 В. Для синусоиды среднеквадратичное значение равно размаху / (2√2) = 1,41 В — сравните с карточкой показаний.</li>
+  <li>Постоянная составляющая: установите <span class="k">OFFSET</span> генератора +1,5 В. При открытом входе (<span class="k">DC</span>) линия поднимется на 1,5 деления над опорной; при закрытом (<span class="k">AC</span>) вернётся к опорной, так как закрытый вход отделяет постоянную составляющую.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">С генератором</span>
+<h2 id="ru-time">Измерение периода и частоты</h2>
+<div class="formula">T = (число делений) × TIME/DIV &nbsp;&nbsp; f = 1 / T</div>
+<ol class="steps">
+  <li>Измеряйте между соответствующими точками осциллограммы, лучше всего между переходами через ноль на горизонтальной средней линии, где линия крутая.</li>
+  <li>Измеряйте по нескольким периодам и делите: погрешность отсчёта распределяется. Пример (<em>Default</em>, CH2): при 0,2 мс/дел четыре периода меандра 2 кГц занимают 10 делений, т. е. T = 10 × 0,2 мс / 4 = 0,5 мс, f = 2 кГц.</li>
+  <li>Для точного отсчёта одного фронта включите растяжку <span class="k">×10</span>: действующий коэффициент развёртки равен TIME/DIV ÷ 10.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">С генератором</span>
+<h2 id="ru-rise">Время нарастания по линиям 10 % и 90 %</h2>
+<p>Время нарастания — это время, за которое сигнал возрастает от 10 % до 90 % полной амплитуды. Для его измерения предназначены штриховые линии сетки: сигнал должен занимать ровно 5 делений между линиями <em>0 %</em> и <em>100</em>.</p>
+<ol class="steps">
+  <li>Возьмите сигнал с известной крутизной: GEN 1 <span class="k">WAVEFORM</span> — треугольник, 1 кГц, <span class="k">AMPLITUDE</span> 5 В, <span class="k">OFFSET</span> 0; CH1 1 В/дел, <span class="k">POSITION ↕</span> 0. Треугольник проходит ровно от линии 0 % до линии 100 %.</li>
+  <li>Установите <span class="k">A TIME/DIV</span> 0,1 мс и синхронизацию по нарастанию.</li>
+  <li>Отсчитайте горизонтальное расстояние между пересечениями с линиями <em>10</em> и <em>90</em>: 4 деления = 0,4 мс. Проверка: напряжение растёт на 5 В за 0,5 мс, 80 % этого изменения занимает 0,4 мс.</li>
+  <li>У OSC-2 нет плавной регулировки коэффициента отклонения; 5 делений устанавливают ручкой <span class="k">AMPLITUDE</span> генератора. У настоящего прибора измеренное значение содержит и собственное время нарастания осциллографа: t<sub>сигн</sub> = √(t<sub>изм</sub>² − t<sub>осц</sub>²). Здесь t<sub>осц</sub> = 0.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">С генератором</span>
+<h2 id="ru-phase">Сдвиг фаз — двухканальный метод</h2>
+<div class="formula">φ = 360° × Δt / T</div>
+<ol class="steps">
+  <li>Оба выхода — синусоида 1 кГц, 4 В; GEN 2 <span class="k">PHASE</span> 45°. <span class="k">MODE</span> <span class="k">DUAL</span>, оба канала 1 В/дел, обе линии в центре (нулевые линии устанавливают в положении <span class="k">GND</span>).</li>
+  <li><span class="k">A TIME/DIV</span> 0,1 мс: период T = 1 мс = 10 делений.</li>
+  <li>Измерьте Δt между переходами двух сигналов через ноль при нарастании: 1,25 деления = 0,125 мс, т. е. φ = 360° × 0,125 / 1 = 45°. CH2 проходит через ноль раньше — он опережает.</li>
+  <li>При малых углах отсчитывайте Δt с растяжкой <span class="k">×10</span>.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">С генератором</span>
+<h2 id="ru-ellipse">Сдвиг фаз по эллипсу (фигура Лиссажу)</h2>
+<div class="formula">sin φ = a / b</div>
+<ol class="steps">
+  <li>Те же сигналы (равные частоты), <span class="k">MODE</span> <span class="k">X-Y</span>, оба канала 1 В/дел, по центру; GEN 2 <span class="k">PHASE</span> 30°.</li>
+  <li>Измерьте <em>a</em> — расстояние между двумя точками пересечения эллипса с вертикальной средней линией — и <em>b</em> — его полную высоту.</li>
+  <li>Здесь a = 2 деления, b = 4 деления: sin φ = 0,5, φ = 30°. Прямая линия означает 0° или 180°; при равных амплитудах окружность означает 90°.</li>
+  <li>Эллипс не показывает знак сдвига фаз; какой сигнал опережает, видно двухканальным методом.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">С генератором</span>
+<h2 id="ru-ratio">Отношение частот по фигурам Лиссажу</h2>
+<div class="formula">fx : fy = (точки касания боковой стороны) : (точки касания верхней стороны)</div>
+<ol class="steps">
+  <li>Предустановка <em>Lissajous 3:2</em>: CH1 (X) 300 Гц, CH2 (Y) 200 Гц.</li>
+  <li>Сосчитайте точки касания фигуры с правой стороной (3) и с верхней (2): fx : fy = 3 : 2. Карточка «XY ratio» это подтверждает.</li>
+  <li>Если фигура — незамкнутая кривая, проходящая сама по себе, подсчёт неверен: немного измените одну из установок <span class="k">PHASE</span>, пока фигура не замкнётся.</li>
+  <li>Если фигура медленно вращается, отношение не точно целое: частоты «уходят» друг относительно друга.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">С генератором</span>
+<h2 id="ru-beats">Биения</h2>
+<ol class="steps">
+  <li>Предустановка <em>Beats</em>: 1000 Гц и 1100 Гц одинаковой амплитуды, <span class="k">MODE</span> <span class="k">ADD</span>, 5 мс/дел.</li>
+  <li>Огибающая суммы повторяется с разностной частотой: f<sub>б</sub> = |f<sub>1</sub> − f<sub>2</sub>| = 100 Гц, т. е. каждые 10 мс = 2 деления.</li>
+  <li>Приблизьте <span class="k">FREQUENCY</span> одного генератора к частоте другого: биения замедляются. Если включить оба переключателя <span class="k">AUDIO</span>, их можно и услышать.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">С генератором</span>
+<h2 id="ru-delta">Точное измерение интервалов задержанной развёрткой</h2>
+<div class="formula">Δt = (DELAY₂ − DELAY₁) × A TIME/DIV</div>
+<ol class="steps">
+  <li>Предустановка <em>Delayed sweep</em>: импульсы 1 кГц, A 0,5 мс/дел, B 10 мкс/дел, <span class="k">DISPLAY</span> <span class="k">A INT</span>. Подсвеченный участок — это то, что покажет развёртка Б.</li>
+  <li>Ручкой <span class="k">DELAY</span> переместите подсвеченный участок на фронт импульса и переключите <span class="k">DISPLAY</span> в <span class="k">B</span>. Совместите фронт с выбранной линией сетки и запишите DELAY₁ (здесь 3,98).</li>
+  <li>Поверните <span class="k">DELAY</span> назад к предыдущему фронту и совместите его с той же линией: DELAY₂ = 1,98. Δt = 2,00 × 0,5 мс = 1,000 мс, т. е. f = 1,000 кГц.</li>
+  <li>Shift с колесом мыши даёт шаг 0,02 деления. Развёртка Б в 50 раз быстрее А, поэтому положение фронта отсчитывается гораздо точнее, чем на развёртке А.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">С генератором</span>
+<h2 id="ru-zmark">Метки времени через вход Z</h2>
+<ol class="steps">
+  <li>Предустановка <em>Z modulation</em>: GEN 2 подаёт на <span class="k">Z INPUT</span> меандр 10 кГц от 0 до +5 В (5 В, <span class="k">OFFSET</span> +2,5 В).</li>
+  <li>Каждый полупериод +5 В гасит луч: линия становится штриховой, штрих и промежуток повторяются через 0,1 мс — при 0,2 мс/дел по два на деление.</li>
+  <li>Используйте их как масштаб времени или установите GEN 2 на 1 кГц для меток через 1 мс. Отрицательное напряжение на входе Z не гасит, а подсвечивает луч.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">С генератором · Живой звук</span>
+<h2 id="ru-ext">Внешняя синхронизация зашумлённых сигналов</h2>
+<ol class="steps">
+  <li>Предустановка <em>Noisy signal</em>: отображается сумма синусоиды и шума.</li>
+  <li>Установите <span class="k">SOURCE</span> в <span class="k">EXT</span>, а <span class="k">EXT TRIG IN</span> — в <span class="k">GEN 1</span> (чистая синусоида): изображение стоит. С <span class="k">GEN 2</span> (шум) в качестве источника оно распадается.</li>
+  <li>С живым звуком: GEN 1 воспроизводит тон (<span class="k">AUDIO (LEFT)</span> включён), CH1 <span class="k">INPUT</span> <span class="k">AUDIO IN</span> принимает его микрофоном, синхронизация <span class="k">EXT</span> от <span class="k">GEN 1</span>. Каким бы слабым ни был сигнал микрофона, изображение синхронно с генератором.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">Живой звук</span>
+<h2 id="ru-single">Запись однократного события (хлопок, щелчок)</h2>
+<ol class="steps">
+  <li>CH1 <span class="k">INPUT</span> <span class="k">AUDIO IN</span>, <span class="k">VOLTS/DIV</span> 50 мВ, <span class="k">A TIME/DIV</span> 5 мс.</li>
+  <li>Источник синхронизации <span class="k">SOURCE</span> <span class="k">CH1</span>, <span class="k">LEVEL</span> немного выше уровня фонового шума, <span class="k">MODE</span> <span class="k">SINGLE</span>.</li>
+  <li>Нажмите <span class="k">SINGLE RESET</span> (горит READY) и хлопните в ладоши. Записывается один ход развёртки, который остаётся на экране.</li>
+  <li>Сместите линию вправо ручкой <span class="k">POSITION ↔</span>, чтобы увидеть и моменты непосредственно перед запуском.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">Живой звук</span>
+<h2 id="ru-sound">Измерение скорости звука</h2>
+<ol class="steps">
+  <li>GEN 1: импульсы, 5 Гц, умеренная громкость <span class="k">VOLUME</span>, <span class="k">AUDIO (LEFT)</span> включён — каждый фронт даёт щелчок в громкоговорителе.</li>
+  <li>CH1 <span class="k">AUDIO IN</span> (микрофон); синхронизация <span class="k">EXT</span> от <span class="k">GEN 1</span>, <span class="k">SLOPE</span> <span class="k">+ ↑</span>, ждущий режим <span class="k">NORM</span>; <span class="k">A TIME/DIV</span> 10 мс. Щелчок появляется через несколько десятков миллисекунд после запуска: компьютер вносит постоянную задержку звукового тракта.</li>
+  <li>Переключите <span class="k">DISPLAY</span> в <span class="k">A INT</span>, ручкой <span class="k">DELAY</span> переместите подсвеченный участок на щелчок, затем переключите в <span class="k">B</span> при <span class="k">B TIME/DIV</span> 1 мс.</li>
+  <li>Отметьте начало щелчка, затем отодвиньте микрофон от громкоговорителя ещё на 34 см: щелчок сдвинется вправо примерно на 1 мс (1 деление) — при 20 °C звук проходит около 343 м/с. Значение имеет только это изменение, а не абсолютная задержка.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">Живой звук</span>
+<h2 id="ru-stereo">Стереокартина музыки (режим X-Y)</h2>
+<ol class="steps">
+  <li>CH1 и CH2 <span class="k">INPUT</span> <span class="k">AUDIO OUT</span> (левый канал → X, правый → Y), <span class="k">MODE</span> <span class="k">X-Y</span>, 0,1–0,2 В/дел, <span class="k">A TIME/DIV</span> 5–10 мс, длительное послесвечение <span class="k">PERSISTENCE</span>.</li>
+  <li>Монофонический сигнал рисует прямую под углом 45°, широкая стереокартина — облако, канал с обратной полярностью — другую диагональ.</li>
+  <li>Студийные гониометры поворачивают это изображение на 45°, чтобы моно было вертикальным.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">Живой звук</span>
+<h2 id="ru-card">Исследование звуковой карты</h2>
+<ol class="steps">
+  <li>Соедините кабелем выход на наушники с линейным входом (или поднесите микрофон к громкоговорителю). GEN 1 — меандр на <span class="k">AUDIO (LEFT)</span>, CH1 <span class="k">AUDIO IN</span>.</li>
+  <li>При 50 Гц плоские вершины меандра «проседают»: у звуковой карты закрытый вход, как закрытый вход <span class="k">AC</span> настоящего осциллографа на низких частотах.</li>
+  <li>При 5 кГц фронты скруглены. Измерьте время нарастания 0,1–0,9 с растяжкой <span class="k">×10</span> и оцените полосу пропускания: Δf ≈ 0,35 / t<sub>н</sub>.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">Общее</span>
+<h2 id="ru-mistakes">Типичные ошибки</h2>
+<ul>
+  <li><span class="k">COUPLING</span> оставлен в положении <span class="k">GND</span> — прямая линия.</li>
+  <li>Источник синхронизации <span class="k">SOURCE</span> — канал без сигнала, или <span class="k">LEVEL</span> вне сигнала: <span class="k">TRIG'D</span> не горит; в <span class="k">AUTO</span> изображение бежит, в <span class="k">NORM</span> исчезает.</li>
+  <li>Режим <span class="k">SINGLE</span> ждёт запуска (горит READY) — экран пуст, пока не произойдёт событие.</li>
+  <li>В режиме <span class="k">ADD</span> для суммы действует <span class="k">VOLTS/DIV</span> канала CH1; в режиме <span class="k">X-Y</span> слишком малое <span class="k">A TIME/DIV</span> рисует лишь часть фигуры.</li>
+  <li>Забыли выключить <span class="k">×10</span> или <span class="k">DISPLAY B</span>: масштаб времени не тот, что вы думаете.</li>
+</ul>
+</section>
+</article>
+
+<!-- ======================================================================= MAGYAR -->
+<article data-lang="hu" lang="hu" data-title="OSC-2 mérési tippek" hidden>
+<header>
+  <h1>Mérési tippek</h1>
+  <p>Gyakorlati mérési eljárások az OSC-2-höz és az FG-2-höz. Az <em>Élő hang</em> jelű tippekhez hangkártya kell, ezért csak akkor működnek, ha az oldal a saját webhelyén fut (például a Vercelen), a Claude-on belüli előnézetben nem. A kezelőszervek neve az előlapi feliratot követi; részletek a <a href="help.html#hu" data-keep-lang>kezelési útmutatóban</a>.</p>
+</header>
+
+<section class="tip"><span class="tag">Generátorral</span>
+<h2 id="hu-stable">Álló kép négy lépésben</h2>
+<ol class="steps">
+  <li>Kezdjen <span class="k">AUTO</span> állásban: a sugár mindig látszik, indítás nélkül is.</li>
+  <li>Az indítójel forrását (<span class="k">SOURCE</span>) állítsa arra a csatornára, amelynek a jelét állóvá akarja tenni.</li>
+  <li>Forgassa az indítási szintet (<span class="k">LEVEL</span>), amíg a jelen belülre nem kerül — kigyullad a <span class="k">TRIG'D</span> lámpa, a kép megáll.</li>
+  <li>A <span class="k">SLOPE</span> kapcsolóval válassza a felfutó vagy a lefutó élt. Tiszta, ismétlődő jelnél kapcsoljon <span class="k">NORM</span> állásba: ekkor csak a helyesen indított eltérítések jelennek meg.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">Generátorral</span>
+<h2 id="hu-volt">Feszültségmérés</h2>
+<p>Számolja meg a függőleges osztásokat, és szorozza meg az eltérítési tényezővel:</p>
+<div class="formula">Upp = (osztások száma) × VOLTS/DIV</div>
+<ol class="steps">
+  <li>A <span class="k">COUPLING</span> kapcsolót tegye <span class="k">GND</span> állásba, és a <span class="k">POSITION ↕</span> gombbal tolja a sugarat egy rácsvonalra — ez a 0 V-os referencia.</li>
+  <li>Kapcsoljon vissza <span class="k">DC</span> állásba, és a <span class="k">VOLTS/DIV</span> értékét úgy válassza, hogy a jel négy–hat osztás magas legyen: így a leolvasás a legpontosabb.</li>
+  <li>Példa (<em>Default</em> előbeállítás): a CH1 szinusza 1 V/osztásnál 4 osztás magas, tehát Upp = 4 V. Szinusznál az effektív érték Upp / (2√2) = 1,41 V — vesse össze a mérőkártyával.</li>
+  <li>Egyenösszetevő: a generátor <span class="k">OFFSET</span> értékét állítsa +1,5 V-ra. <span class="k">DC</span> csatolásnál a sugár 1,5 osztással a referencia fölé kerül; <span class="k">AC</span> csatolásnál visszatér a referenciára, mert az AC csatolás leválasztja az egyenösszetevőt.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">Generátorral</span>
+<h2 id="hu-time">Periódusidő és frekvencia mérése</h2>
+<div class="formula">T = (osztások száma) × TIME/DIV &nbsp;&nbsp; f = 1 / T</div>
+<ol class="steps">
+  <li>Egymásnak megfelelő pontok között mérjen, legjobb a vízszintes középvonalon lévő nullátmenetek között, ahol a jelalak meredek.</li>
+  <li>Több perióduson át mérjen, és osszon: a leolvasási hiba megoszlik. Példa (<em>Default</em>, CH2): 0,2 ms/osztásnál a 2 kHz-es négyszögjel négy periódusa 10 osztást foglal el, tehát T = 10 × 0,2 ms / 4 = 0,5 ms, f = 2 kHz.</li>
+  <li>Egyetlen él pontos leolvasásához kapcsolja be a <span class="k">×10</span>-es nyújtást: a tényleges időalap TIME/DIV ÷ 10.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">Generátorral</span>
+<h2 id="hu-rise">Felfutási idő a 10 %-os és 90 %-os vonallal</h2>
+<p>A felfutási idő az az idő, amely alatt a jel teljes amplitúdójának 10 %-áról 90 %-ára emelkedik. Erre szolgálnak a szaggatott rácsvonalak: a jelnek pontosan a <em>0 %</em> és a <em>100</em> vonal közötti 5 osztást kell kitöltenie.</p>
+<ol class="steps">
+  <li>Használjon ismert meredekségű jelet: GEN 1 <span class="k">WAVEFORM</span> háromszög, 1 kHz, <span class="k">AMPLITUDE</span> 5 Vpp, <span class="k">OFFSET</span> 0; CH1 1 V/osztás, <span class="k">POSITION ↕</span> 0. A háromszög most pontosan a 0 %-os vonaltól a 100 %-osig fut.</li>
+  <li>Az <span class="k">A TIME/DIV</span> legyen 0,1 ms, az indítás a felfutó élre.</li>
+  <li>Olvassa le a vízszintes távolságot a <em>10</em> és a <em>90</em> vonal metszéspontjai között: 4 osztás = 0,4 ms. Ellenőrzés: a rámpa 0,5 ms alatt 5 V-ot emelkedik, ennek 80 %-a 0,4 ms.</li>
+  <li>Az OSC-2-n nincs folyamatos érzékenységállítás; az 5 osztást a generátor <span class="k">AMPLITUDE</span> gombjával állítsa be. Valódi műszernél a mért érték az oszcilloszkóp saját felfutási idejét is tartalmazza: t<sub>jel</sub> = √(t<sub>mért</sub>² − t<sub>szkóp</sub>²). Itt t<sub>szkóp</sub> = 0.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">Generátorral</span>
+<h2 id="hu-phase">Fáziskülönbség — kétcsatornás módszer</h2>
+<div class="formula">φ = 360° × Δt / T</div>
+<ol class="steps">
+  <li>Mindkét kimenet szinusz, 1 kHz, 4 Vpp; GEN 2 <span class="k">PHASE</span> 45°. <span class="k">MODE</span> <span class="k">DUAL</span>, mindkét csatorna 1 V/osztás, mindkét jel középen (a nullvonalakat <span class="k">GND</span> állásban állítsa be).</li>
+  <li><span class="k">A TIME/DIV</span> 0,1 ms: egy periódus T = 1 ms = 10 osztás.</li>
+  <li>Mérje meg a két jel felfutó nullátmenete közötti Δt-t: 1,25 osztás = 0,125 ms, tehát φ = 360° × 0,125 / 1 = 45°. A CH2 lép át előbb a nullán: az siet.</li>
+  <li>Kis fázisszögnél a Δt-t <span class="k">×10</span>-es nyújtással olvassa le.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">Generátorral</span>
+<h2 id="hu-ellipse">Fáziskülönbség — Lissajous-ellipszis</h2>
+<div class="formula">sin φ = a / b</div>
+<ol class="steps">
+  <li>Az előzőhöz hasonló beállítás (egyenlő frekvenciák), <span class="k">MODE</span> <span class="k">X-Y</span>, mindkét csatorna 1 V/osztás, középre állítva; GEN 2 <span class="k">PHASE</span> 30°.</li>
+  <li>Mérje meg az <em>a</em> távolságot — az ellipszis és a függőleges középvonal két metszéspontja között — és a <em>b</em>-t, az ellipszis teljes magasságát.</li>
+  <li>Itt a = 2 osztás, b = 4 osztás: sin φ = 0,5, φ = 30°. Egyenes 0°-ot vagy 180°-ot jelent; egyenlő amplitúdóknál a kör 90°-ot.</li>
+  <li>Az ellipszis nem mutatja a fáziskülönbség előjelét; hogy melyik jel siet, a kétcsatornás módszer mutatja meg.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">Generátorral</span>
+<h2 id="hu-ratio">Frekvenciaarány Lissajous-ábrával</h2>
+<div class="formula">fx : fy = (érintési pontok egy függőleges oldalon) : (érintési pontok a tetején)</div>
+<ol class="steps">
+  <li><em>Lissajous 3:2</em> előbeállítás: CH1 (X) 300 Hz, CH2 (Y) 200 Hz.</li>
+  <li>Számolja meg, hányszor érinti az ábra a jobb oldalt (3) és a tetejét (2): fx : fy = 3 : 2. Az „XY ratio” kártya megerősíti.</li>
+  <li>Ha az ábra nyitott, önmagán visszafutó görbe, a számolás hibás — változtasson kicsit az egyik <span class="k">PHASE</span> beállításon, amíg az ábra be nem zárul.</li>
+  <li>Ha az ábra lassan forog, az arány nem pontosan egész: a frekvenciák elcsúsznak egymáshoz képest.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">Generátorral</span>
+<h2 id="hu-beats">Lebegés</h2>
+<ol class="steps">
+  <li><em>Beats</em> előbeállítás: 1000 Hz és 1100 Hz, egyenlő amplitúdóval, <span class="k">MODE</span> <span class="k">ADD</span>, 5 ms/osztás.</li>
+  <li>Az összeg burkolója a különbségi frekvenciával ismétlődik: f<sub>l</sub> = |f<sub>1</sub> − f<sub>2</sub>| = 100 Hz, azaz 10 ms-onként = 2 osztásonként.</li>
+  <li>Közelítse az egyik generátor <span class="k">FREQUENCY</span> értékét a másikéhoz: a lebegés lassul. Mindkét <span class="k">AUDIO</span> kapcsolót bekapcsolva hallani is lehet.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">Generátorral</span>
+<h2 id="hu-delta">Pontos időközök a késleltetett eltérítéssel</h2>
+<div class="formula">Δt = (DELAY₂ − DELAY₁) × A TIME/DIV</div>
+<ol class="steps">
+  <li><em>Delayed sweep</em> előbeállítás: 1 kHz-es impulzus, A 0,5 ms/osztás, B 10 µs/osztás, <span class="k">DISPLAY</span> <span class="k">A INT</span>. A kiemelt szakasz mutatja, mit fog a B megjeleníteni.</li>
+  <li>A <span class="k">DELAY</span> gombbal vigye a kiemelt szakaszt egy felfutó élre, majd a <span class="k">DISPLAY</span> kapcsolót tegye <span class="k">B</span> állásba. Az élt állítsa egy kiválasztott rácsvonalra, és jegyezze fel a DELAY₁ értéket (itt 3,98).</li>
+  <li>Forgassa vissza a <span class="k">DELAY</span> gombot az előző élig, és állítsa ugyanarra a vonalra: DELAY₂ = 1,98. Δt = 2,00 × 0,5 ms = 1,000 ms, tehát f = 1,000 kHz.</li>
+  <li>Shift + egérgörgő 0,02 osztásos lépést ad. Mivel a B 50-szer gyorsabb az A-nál, az él helye sokkal pontosabban olvasható le, mint az A eltérítésen.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">Generátorral</span>
+<h2 id="hu-zmark">Időjelek a Z-bemenettel</h2>
+<ol class="steps">
+  <li><em>Z modulation</em> előbeállítás: a GEN 2 0 V és +5 V közötti, 10 kHz-es négyszögjelet (5 Vpp, <span class="k">OFFSET</span> +2,5 V) ad a <span class="k">Z INPUT</span>-ra.</li>
+  <li>Minden +5 V-os félperiódus kioltja a sugarat: a jelalak szaggatott vonallá válik, egy vonás és egy szünet 0,1 ms-onként — 0,2 ms/osztásnál osztásonként kettő.</li>
+  <li>Használja időléptékként, vagy állítsa a GEN 2-t 1 kHz-re 1 ms-os jelekhez. Negatív Z-feszültség nem kiolt, hanem világosít.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">Generátorral · Élő hang</span>
+<h2 id="hu-ext">Külső indítás zajos jeleknél</h2>
+<ol class="steps">
+  <li><em>Noisy signal</em> előbeállítás: a megjelenített összeg zajos szinusz.</li>
+  <li>A <span class="k">SOURCE</span> legyen <span class="k">EXT</span>, az <span class="k">EXT TRIG IN</span> pedig <span class="k">GEN 1</span> (a tiszta szinusz): a kép áll. <span class="k">GEN 2</span>-vel (a zajjal) mint indítójellel szétesik.</li>
+  <li>Élő hanggal: a GEN 1 hangot játszik (<span class="k">AUDIO (LEFT)</span> bekapcsolva), a CH1 <span class="k">INPUT</span> <span class="k">AUDIO IN</span> állásban mikrofonnal veszi, az indítás <span class="k">EXT</span>, a <span class="k">GEN 1</span>-ről. Akármilyen gyenge a mikrofon jele, a kép a generátorral szinkronban áll.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">Élő hang</span>
+<h2 id="hu-single">Egyszeri esemény rögzítése (taps, kattanás)</h2>
+<ol class="steps">
+  <li>CH1 <span class="k">INPUT</span> <span class="k">AUDIO IN</span>, <span class="k">VOLTS/DIV</span> 50 mV, <span class="k">A TIME/DIV</span> 5 ms.</li>
+  <li>Az indítójel forrása (<span class="k">SOURCE</span>) <span class="k">CH1</span>, a <span class="k">LEVEL</span> kicsivel a háttérzaj fölött, <span class="k">MODE</span> <span class="k">SINGLE</span>.</li>
+  <li>Nyomja meg a <span class="k">SINGLE RESET</span> gombot (kigyullad a READY), és tapsoljon. Egyetlen eltérítés rögzül, és a képernyőn marad.</li>
+  <li>A <span class="k">POSITION ↔</span> gombbal tolja jobbra a jelalakot, hogy az indítás előtti pillanatok is látsszanak.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">Élő hang</span>
+<h2 id="hu-sound">A hangsebesség mérése</h2>
+<ol class="steps">
+  <li>GEN 1: impulzus, 5 Hz, mérsékelt <span class="k">VOLUME</span>, <span class="k">AUDIO (LEFT)</span> bekapcsolva — minden felfutó él kattanást ad a hangszóróban.</li>
+  <li>CH1 <span class="k">AUDIO IN</span> (mikrofon); indítás <span class="k">EXT</span>, a <span class="k">GEN 1</span>-ről, <span class="k">SLOPE</span> <span class="k">+ ↑</span>, <span class="k">NORM</span>; <span class="k">A TIME/DIV</span> 10 ms. A kattanás néhány tíz milliszekundummal az indítás után jelenik meg: a számítógép állandó hangkésleltetést ad hozzá.</li>
+  <li>A <span class="k">DISPLAY</span> kapcsolót tegye <span class="k">A INT</span> állásba, a <span class="k">DELAY</span> gombbal vigye a kiemelt szakaszt a kattanásra, majd kapcsoljon <span class="k">B</span> állásba, <span class="k">B TIME/DIV</span> 1 ms-mal.</li>
+  <li>Jegyezze meg a kattanás kezdetét, majd vigye a mikrofont 34 cm-rel távolabb a hangszórótól: a kattanás kb. 1 ms-mal (1 osztással) jobbra kerül — a hang 20 °C-on kb. 343 m/s sebességgel terjed. Csak ez a változás mérvadó, nem az abszolút késés.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">Élő hang</span>
+<h2 id="hu-stereo">Zene sztereó képe (X-Y)</h2>
+<ol class="steps">
+  <li>CH1 és CH2 <span class="k">INPUT</span> <span class="k">AUDIO OUT</span> (bal csatorna → X, jobb → Y), <span class="k">MODE</span> <span class="k">X-Y</span>, 0,1–0,2 V/osztás, <span class="k">A TIME/DIV</span> 5–10 ms, hosszú <span class="k">PERSISTENCE</span>.</li>
+  <li>A monó jel 45°-ban emelkedő egyenest rajzol, a széles sztereó kép felhőt, a fordított polaritású csatorna a másik átlót.</li>
+  <li>A stúdiós fázismérők (goniométerek) 45°-kal elforgatják ezt a képet, hogy a monó függőleges legyen.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">Élő hang</span>
+<h2 id="hu-card">A hangkártya vizsgálata</h2>
+<ol class="steps">
+  <li>Kösse össze kábellel a fejhallgató-kimenetet a vonalbemenettel (vagy tartsa a mikrofont a hangszóró közelébe). GEN 1 négyszögjel az <span class="k">AUDIO (LEFT)</span> kimenetre, CH1 <span class="k">AUDIO IN</span>.</li>
+  <li>50 Hz-en a négyszögjel lapos teteje „megereszkedik”: a hangkártya váltakozó áramú csatolású, mint a valódi oszcilloszkóp <span class="k">AC</span> csatolása alacsony frekvencián.</li>
+  <li>5 kHz-en az élek lekerekednek. Mérje meg a 10–90 %-os felfutási időt <span class="k">×10</span>-es nyújtással, és becsülje meg a sávszélességet: B ≈ 0,35 / t<sub>f</sub>.</li>
+</ol>
+</section>
+
+<section class="tip"><span class="tag">Általános</span>
+<h2 id="hu-mistakes">Gyakori hibák</h2>
+<ul>
+  <li>A <span class="k">COUPLING</span> <span class="k">GND</span> állásban maradt — vízszintes vonal.</li>
+  <li>Az indítójel forrása (<span class="k">SOURCE</span>) jel nélküli csatorna, vagy a <span class="k">LEVEL</span> a jelen kívül van: a <span class="k">TRIG'D</span> sötét marad; <span class="k">AUTO</span> állásban a kép fut, <span class="k">NORM</span> állásban eltűnik.</li>
+  <li>A <span class="k">SINGLE</span> üzemmód indításra vár (világít a READY) — a képernyő üres, amíg az esemény meg nem jön.</li>
+  <li><span class="k">ADD</span> üzemmódban az összegre a CH1 <span class="k">VOLTS/DIV</span> értéke érvényes; <span class="k">X-Y</span> üzemmódban túl rövid <span class="k">A TIME/DIV</span> mellett az ábrának csak egy része rajzolódik ki.</li>
+  <li>Bekapcsolva felejtett <span class="k">×10</span> vagy <span class="k">DISPLAY B</span>: az időlépték nem az, aminek gondolja.</li>
+</ul>
+</section>
+</article>
+
+<section class="shared" aria-labelledby="lit-h">
+<h2 id="lit-h"><span data-l="en">Literature</span><span data-l="de" hidden>Literatur</span><span data-l="ru" hidden>Литература</span><span data-l="hu" hidden>Szakirodalom</span></h2>
+<ul class="lit">
+  <li lang="en">Tektronix: <a href="https://www.physics.wisc.edu/courses/home/spring2021/407/407_Lab_Instrument_Manuals/Tektronix3022_oscilloscope_manuals/Tektronix%20scope%20primers/XYZsOfOscilloscopes.pdf" target="_blank" rel="noopener">XYZs of Oscilloscopes</a> (primer).</li>
+  <li lang="en">Tektronix: <a href="https://ftp.mirrorservice.org/sites/www.bitsavers.org/test_equipment/tektronix/scope/070-3830-00_2445_Operators_Instruction_Manual_Jul83.pdf" target="_blank" rel="noopener">2445 Oscilloscope — Operators Instruction Manual</a> (070-3830-00, 1983).</li>
+  <li lang="de">HAMEG: <a href="https://cdn.rohde-schwarz.com/hameg-archive/HM303-6_dt.pdf" target="_blank" rel="noopener">Oszilloskop HM303-6 — Handbuch</a> (Spannungs-, Zeit-, Anstiegszeit- und Phasendifferenzmessung).</li>
+  <li lang="ru">Жаров К. К.: <a href="https://edu.study.tusur.ru/publications/8908/download" target="_blank" rel="noopener">Применение электронного осциллографа для исследования электрических сигналов</a>. Томск: ТУСУР, 2018.</li>
+  <li lang="hu"><a href="https://www.hobbielektronika.hu/forum/getfile.php?id=127593" target="_blank" rel="noopener">A katódsugárcső-oszcilloszkóp, mérések oszcilloszkóppal</a> — fizikai laboratóriumi segédlet; és Radnai R.: <em>Oszcilloszkópos mérések</em>. Budapest: Műszaki Könyvkiadó, 1985.</li>
+</ul>
+</section>
+</div>
+</main>
+<footer><p>OSC-2 · FG-2 — <span data-l="en">simulation for learning; not a measuring instrument.</span><span data-l="de" hidden>Simulation zum Lernen; kein Messgerät.</span><span data-l="ru" hidden>учебная модель, не средство измерений.</span><span data-l="hu" hidden>oktatási célú szimuláció, nem mérőeszköz.</span></p>
+<p class="legal">© 2026 András Sümegi · <span data-l="en">Free software under the <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank" rel="noopener">GNU General Public License v3.0 or later</a>, without any warranty · <a href="LICENSE.txt" target="_blank" rel="noopener">Full licence text</a></span><span data-l="de" hidden>Freie Software unter der <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank" rel="noopener">GNU General Public License v3.0 oder später</a>, ohne jede Gewährleistung · <a href="LICENSE.txt" target="_blank" rel="noopener">Lizenztext</a></span><span data-l="ru" hidden>Свободное программное обеспечение по лицензии <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank" rel="noopener">GNU General Public License версии 3 или более поздней</a>, без каких-либо гарантий · <a href="LICENSE.txt" target="_blank" rel="noopener">Текст лицензии</a></span><span data-l="hu" hidden>Szabad szoftver a <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank" rel="noopener">GNU General Public License 3. vagy későbbi változata</a> alapján, mindenféle garancia nélkül · <a href="LICENSE.txt" target="_blank" rel="noopener">A licenc teljes szövege</a></span></p></footer>
+<script src="manual.js"></script>
+</body>
+</html>

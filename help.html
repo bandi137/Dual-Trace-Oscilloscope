@@ -1,0 +1,512 @@
+<!doctype html>
+<!--
+  OSC-2 / FG-2 — dual-trace oscilloscope and function generator simulator
+  Copyright (C) 2026 András Sümegi
+  This program is free software: you can redistribute it and/or modify it under the terms of the
+  GNU General Public License as published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version. It is distributed WITHOUT ANY WARRANTY; see
+  <https://www.gnu.org/licenses/>.
+  SPDX-License-Identifier: GPL-3.0-or-later
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>OSC-2 Operating Manual</title>
+<meta name="description" content="Operating manual of the OSC-2 dual-trace oscilloscope simulator and the FG-2 function generator, in English, German, Russian and Hungarian.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=PT+Sans:ital,wght@0,400;0,700;1,400&family=PT+Sans+Narrow:wght@400;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<link rel="stylesheet" href="manual.css">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<div class="bar"><div class="bar-in">
+  <span class="brand">OSC-2 · FG-2</span>
+  <nav aria-label="Pages">
+    <a href="./">
+      <span data-l="en">Oscilloscope</span><span data-l="de" hidden>Oszilloskop</span><span data-l="ru" hidden>Осциллограф</span><span data-l="hu" hidden>Oszcilloszkóp</span></a>
+    <a href="help.html" aria-current="page" data-keep-lang>
+      <span data-l="en">Manual</span><span data-l="de" hidden>Bedienungsanleitung</span><span data-l="ru" hidden>Руководство</span><span data-l="hu" hidden>Kezelési útmutató</span></a>
+    <a href="tips.html" data-keep-lang>
+      <span data-l="en">Measurement tips</span><span data-l="de" hidden>Messtipps</span><span data-l="ru" hidden>Советы по измерениям</span><span data-l="hu" hidden>Mérési tippek</span></a>
+  </nav>
+  <div class="langs" role="group" aria-label="Language">
+    <button type="button" data-lang="en" title="English" lang="en">EN</button>
+    <button type="button" data-lang="de" title="Deutsch" lang="de">DE</button>
+    <button type="button" data-lang="ru" title="Русский" lang="ru">RU</button>
+    <button type="button" data-lang="hu" title="Magyar" lang="hu">HU</button>
+  </div>
+</div></div>
+
+<main>
+<nav class="toc" id="toc" aria-label="Contents"></nav>
+<div class="content">
+
+<!-- ======================================================================= ENGLISH -->
+<article data-lang="en" lang="en" data-title="OSC-2 Operating Manual">
+<header>
+  <h1>Operating manual — OSC-2 oscilloscope and FG-2 function generator</h1>
+  <p>The OSC-2 simulates a classic analog dual-trace oscilloscope with a dual (A and delayed B) time base. The FG-2 is a two-channel function generator. Both run in the browser; the scope inputs can also be connected to the computer's or phone's sound card. Panel labels are in English, as on most instruments; this manual names every control exactly as it is printed on the panel.</p>
+</header>
+
+<h2 id="en-start">Quick start</h2>
+<ol class="steps">
+  <li>The instrument starts switched on (<span class="k">POWER</span> lamp lit). CH1 shows the sine wave of generator output 1, CH2 the square wave of output 2.</li>
+  <li>If you see no trace: set trigger <span class="k">MODE</span> to <span class="k">AUTO</span>, check that <span class="k">COUPLING</span> is not at <span class="k">GND</span>, turn <span class="k">INTENSITY</span> up and bring the trace back with <span class="k">POSITION</span>.</li>
+  <li>Choose <span class="k">VOLTS/DIV</span> so that the signal fills four to six divisions vertically, and <span class="k">A TIME/DIV</span> so that one to three periods are visible.</li>
+  <li>For a stable picture set the trigger <span class="k">SOURCE</span> to the channel carrying the signal and turn <span class="k">LEVEL</span> until the <span class="k">TRIG'D</span> lamp lights.</li>
+  <li>The <em>Presets</em> buttons under the instruments set up typical measurements in one click; the readings cards show peak-to-peak value, RMS value, mean value and frequency.</li>
+</ol>
+
+<h2 id="en-controls">Operating the controls</h2>
+<dl class="ctl">
+  <dt>Rotary knobs</dt><dd>Drag up or to the right to turn clockwise (hold Shift for fine adjustment), use the mouse wheel, or the arrow keys once the knob has focus. Clicking a marking on the scale turns the knob there; a double-click returns it to its default setting. While you turn a knob, a small label shows its exact value.</dd>
+  <dt>Rotary switches</dt><dd><span class="k">VOLTS/DIV</span>, <span class="k">A TIME/DIV</span>, <span class="k">B TIME/DIV</span> and <span class="k">WAVEFORM</span> click into fixed positions (detents). The selected position is printed in red.</dd>
+  <dt>Toggle switches</dt><dd>Click a position in the slot to move the lever there; clicking the lever itself moves it one step. You can also drag the lever, use the mouse wheel or the arrow keys, or click the position label. A crossed-out label means that position is not available in this browser or view; the reason appears in a small bubble under the switch.</dd>
+  <dt>Push buttons</dt><dd>Latching buttons (<span class="k">MODE</span>, <span class="k">×10</span>, <span class="k">POWER</span>) stay pressed and light their lamp. <span class="k">SINGLE RESET</span> is momentary.</dd>
+</dl>
+
+<h2 id="en-display">Display section</h2>
+<dl class="ctl">
+  <dt><span class="k">INTENSITY</span></dt><dd>Brightness of the trace. Keep it no higher than needed: on a real cathode-ray tube a bright, stationary spot can burn the phosphor.</dd>
+  <dt><span class="k">FOCUS</span></dt><dd>Sharpness of the trace (sharp — medium — blurred).</dd>
+  <dt><span class="k">PERSISTENCE</span></dt><dd>Simulated afterglow of the phosphor (0–97 %). Long persistence shows slow sweeps and the spread of noisy signals; short persistence gives a crisp picture of fast-changing signals.</dd>
+  <dt><span class="k">POWER</span></dt><dd>Switches the oscilloscope on and off; the trace fades out when switched off.</dd>
+  <dt><span class="k">Z INPUT</span></dt><dd>Intensity modulation (Z axis). Source: <span class="k">OFF</span>, <span class="k">GEN 1</span>, <span class="k">GEN 2</span> or <span class="k">AUDIO</span> (mono mix of the audio input). 0 V leaves the brightness unchanged, +5 V blanks the beam completely, negative voltage brightens it (up to twice at −5 V). Works in Y-T and X-Y modes.</dd>
+</dl>
+<p>The graticule has 10 × 8 major divisions with 0.2-division minor marks on the centre lines. The dashed lines marked <em>0 %</em>, <em>10</em>, <em>90</em> and <em>100</em> lie 2.5 and 2 divisions above and below the centre: they serve rise-time measurements (see <a href="tips.html#en-rise" data-tips>Measurement tips</a>).</p>
+
+<h2 id="en-vertical">Vertical system (CH1, CH2)</h2>
+<dl class="ctl">
+  <dt><span class="k">VOLTS/DIV</span></dt><dd>Deflection coefficient, 10 mV/div to 5 V/div in 1-2-5 steps. Values printed in dark blue are in volts, light blue ones in millivolts. Turning clockwise makes the channel more sensitive.</dd>
+  <dt><span class="k">POSITION ↕</span></dt><dd>Vertical shift of the trace, ±4 divisions.</dd>
+  <dt><span class="k">COUPLING</span></dt><dd><span class="k">DC</span>: the full signal including its DC component. <span class="k">AC</span>: the DC component (mean value) is removed. <span class="k">GND</span>: the input is disconnected and grounded; the trace shows the 0 V reference line — use it to set the zero level before measuring.</dd>
+  <dt><span class="k">INPUT</span></dt><dd>Signal source of the channel: <span class="k">GEN 1</span> or <span class="k">GEN 2</span> (either generator output; both channels may show the same output), <span class="k">AUDIO IN</span> (microphone or line input) or <span class="k">AUDIO OUT</span> (the sound the computer is playing). See <a href="#en-audio">Live audio</a>.</dd>
+  <dt><span class="k">MODE</span></dt><dd><span class="k">CH1</span> or <span class="k">CH2</span> alone; <span class="k">DUAL</span>: both channels; <span class="k">ADD</span>: the algebraic sum CH1 + CH2, displayed with the <span class="k">VOLTS/DIV</span> and <span class="k">POSITION</span> settings of CH1; <span class="k">X-Y</span>: CH1 deflects horizontally (X), CH2 vertically (Y).</dd>
+</dl>
+<p>In <span class="k">X-Y</span> mode the horizontal <span class="k">POSITION ↔</span> shifts the X deflection, and <span class="k">A TIME/DIV</span> sets how long a section of the signals is drawn (ten times its value) — choose it so that at least one full period of the slower signal is drawn. The trigger is not used in X-Y mode.</p>
+
+<h2 id="en-horizontal">Horizontal system (time base)</h2>
+<dl class="ctl">
+  <dt><span class="k">A TIME/DIV</span></dt><dd>Main time base (time coefficient), 1 µs/div to 0.5 s/div in 1-2-5 steps; dark blue values are milliseconds, light blue ones microseconds. Clockwise is faster. At 20 ms/div and slower the beam is seen travelling across the screen in real time.</dd>
+  <dt><span class="k">B TIME/DIV</span></dt><dd>Delayed time base. It cannot be set slower than A; the knob stops at the A setting.</dd>
+  <dt><span class="k">DELAY</span></dt><dd>Delay time position: the B sweep starts this many A divisions (0–10) after the start of the A sweep. While turning, the label shows the delay in time as well.</dd>
+  <dt><span class="k">POSITION ↔</span></dt><dd>Horizontal shift, ±5 divisions. Moving the trace to the right also reveals part of the signal before the trigger point. (A real analog oscilloscope shows only a few nanoseconds there, thanks to its delay line; the simulation can show more.)</dd>
+  <dt><span class="k">DISPLAY</span></dt><dd><span class="k">A</span>: main sweep. <span class="k">A INT</span>: main sweep with the section that B will show intensified (the rest is dimmed). <span class="k">B</span>: only the delayed sweep, i.e. the intensified section expanded to the full screen.</dd>
+  <dt><span class="k">×10</span> (MAGNIFIER)</dt><dd>Expands the centre division horizontally ten times; the effective time coefficient is the <span class="k">TIME/DIV</span> setting divided by 10. Works with A, A INT and B.</dd>
+</dl>
+
+<h2 id="en-trigger">Trigger</h2>
+<p>The trigger starts each sweep at the same point of the signal, so that successive sweeps lie on top of each other and the picture stands still. The trigger point is the left edge of the screen (with <span class="k">POSITION ↔</span> at zero).</p>
+<dl class="ctl">
+  <dt><span class="k">LEVEL</span></dt><dd>Trigger level, ±4 divisions on the scale of the source channel (for <span class="k">EXT</span> 0.5 V per scale unit, i.e. ±2 V). Not used with <span class="k">LINE</span>.</dd>
+  <dt><span class="k">SOURCE</span></dt><dd><span class="k">CH1</span>, <span class="k">CH2</span>, <span class="k">EXT</span> (the external trigger input) or <span class="k">LINE</span>. On a real instrument LINE synchronizes to the 50/60 Hz mains, to observe mains-related signals such as hum; here it is an internal 50 Hz reference, mainly for completeness.</dd>
+  <dt><span class="k">SLOPE</span></dt><dd><span class="k">+ ↑</span>: trigger on the rising edge, <span class="k">− ↓</span>: on the falling edge.</dd>
+  <dt><span class="k">MODE</span></dt><dd><span class="k">AUTO</span>: without a valid trigger the sweep free-runs, so a trace (baseline) is always visible — best for unknown signals. <span class="k">NORM</span>: a sweep runs only when a trigger occurs; without trigger the screen stays dark. <span class="k">SINGLE</span>: single sweep — see below.</dd>
+  <dt><span class="k">SINGLE RESET</span>, <span class="k">READY</span></dt><dd>In <span class="k">SINGLE</span> mode RESET arms the sweep and the READY lamp lights. Only a trigger that comes after arming starts the sweep; after one sweep the time base is locked out and READY goes out, until RESET is pressed again.</dd>
+  <dt><span class="k">EXT TRIG IN</span></dt><dd>Source of the external trigger signal: <span class="k">GEN 1</span>, <span class="k">GEN 2</span> or <span class="k">AUDIO</span> (mono mix of the audio input).</dd>
+  <dt><span class="k">TRIG'D</span></dt><dd>Lights while the sweep is being triggered.</dd>
+</dl>
+<div class="note"><p>Difference from a real instrument: on an ordinary cathode-ray tube a single sweep flashes up once and fades with the phosphor, so it had to be photographed. The OSC-2 keeps the captured sweep on the screen, as a storage oscilloscope would; turning the knobs does not erase it, only <span class="k">SINGLE RESET</span> or a change of mode does.</p></div>
+
+<h2 id="en-generator">FG-2 function generator</h2>
+<p>Two independent outputs, <span class="k">OUT 1</span> and <span class="k">OUT 2</span>. Their signals reach the oscilloscope through the <span class="k">INPUT</span>, <span class="k">Z INPUT</span> and <span class="k">EXT TRIG IN</span> switches; the <span class="k">OUTPUT</span> connectors are only a symbol of that connection.</p>
+<dl class="ctl">
+  <dt><span class="k">WAVEFORM</span></dt><dd>Sine, square, pulse (duty cycle 20 %, unipolar from 0 V to the set amplitude), triangle, sawtooth, noise (band-limited to about 20 × the set frequency).</dd>
+  <dt><span class="k">FREQUENCY</span></dt><dd>0.5 Hz to 100 kHz, logarithmic scale.</dd>
+  <dt><span class="k">AMPLITUDE</span></dt><dd>0–10 V peak-to-peak (Vpp).</dd>
+  <dt><span class="k">OFFSET</span></dt><dd>DC offset, −5 V to +5 V.</dd>
+  <dt><span class="k">PHASE</span></dt><dd>0–360°. Both outputs share the same time origin, so at equal frequencies the phase difference of the two outputs is the difference of the two PHASE settings.</dd>
+  <dt><span class="k">AUDIO (LEFT/RIGHT)</span></dt><dd>Also sends <span class="k">OUT 1</span> to the left and <span class="k">OUT 2</span> to the right loudspeaker or headphone channel. The DC offset is not reproduced.</dd>
+  <dt><span class="k">VOLUME</span></dt><dd>Loudness of the audio output only; it does not change the signal seen on the oscilloscope. At 100 %, 10 Vpp corresponds to digital full scale; louder signals are clipped.</dd>
+</dl>
+<p>The red display shows waveform, frequency, amplitude and offset of both outputs; ♪ marks an output that is also sent to the sound card. Sound cards reproduce roughly 20 Hz to 20 kHz: above half the sampling rate (22 or 24 kHz) the audio output is distorted by aliasing, although the oscilloscope still shows the ideal signal.</p>
+
+<h2 id="en-audio">Live audio inputs</h2>
+<ul>
+  <li><span class="k">AUDIO IN</span> uses the microphone or line input. With a stereo input the left channel goes to CH1 and the right channel to CH2.</li>
+  <li><span class="k">AUDIO OUT</span> shows the sound the computer is playing. The browser asks which tab or screen to share — tick <em>Share audio</em>. Works in desktop Chrome and Edge, not on phones.</li>
+  <li>Digital full scale corresponds to ±1 V. Sound cards are AC-coupled and band-limited (about 20 Hz–20 kHz), so <span class="k">DC</span> and <span class="k">AC</span> coupling look the same here.</li>
+  <li>The browser asks for permission the first time; live audio needs a secure (https) page. In embedded views — for example the preview inside Claude — microphone and screen sharing are blocked: the affected positions are crossed out. Open the page on its own site (e.g. on Vercel) to use them.</li>
+  <li>The oscilloscope keeps about 11 seconds of audio history; the picture follows the sound with the small latency of the sound card.</li>
+</ul>
+
+<h2 id="en-readings">Presets and readings</h2>
+<p><em>Presets</em> set up a complete measurement: Default, Lissajous 3:2, Beats, Noisy signal, AC coupling, Z modulation, Delayed sweep, Slow sweep. They reset the inputs to the generator but keep the audio-output settings.</p>
+<p>The readings cards are calculated from the section currently on the screen (in <span class="k">B</span> mode or with <span class="k">×10</span>, the expanded section): <em>Vpp</em> peak-to-peak value, <em>Vrms (AC)</em> RMS value of the AC component, <em>Mean</em> mean (DC) value, <em>Frequency</em> (needs more than one full period on the screen). In X-Y mode a card shows the frequency ratio fx : fy and the phase difference of the generators.</p>
+
+<h2 id="en-limits">Differences from a real analog oscilloscope</h2>
+<ul>
+  <li>Unlimited bandwidth: the OSC-2 has no rise time of its own and no bandwidth limit. Real signals taken from the sound card are, however, limited by the sound card.</li>
+  <li><span class="k">DUAL</span> draws both channels at once; real instruments alternate (ALT) or chop (CHOP) between them.</li>
+  <li>No variable (uncalibrated) VOLTS/DIV, no trigger holdoff, no trace rotation, no probe compensation.</li>
+  <li><span class="k">AC</span> coupling is ideal (no low-frequency cut-off), <span class="k">LINE</span> uses an internal 50 Hz reference, and a single sweep is stored on the screen.</li>
+</ul>
+</article>
+
+<!-- ======================================================================= DEUTSCH -->
+<article data-lang="de" lang="de" data-title="OSC-2 Bedienungsanleitung" hidden>
+<header>
+  <h1>Bedienungsanleitung — Oszilloskop OSC-2 und Funktionsgenerator FG-2</h1>
+  <p>Das OSC-2 bildet ein klassisches analoges Zweikanal-Oszilloskop mit zwei Zeitbasen (Hauptzeitbasis A und verzögerte Zeitbasis B) nach. Der FG-2 ist ein zweikanaliger Funktionsgenerator. Beide laufen im Browser; die Oszilloskop-Eingänge können auch mit der Soundkarte des Computers oder Telefons verbunden werden. Die Frontplatte ist, wie bei den meisten Geräten, englisch beschriftet; diese Anleitung nennt jedes Bedienelement genau so, wie es auf der Frontplatte steht.</p>
+</header>
+
+<h2 id="de-start">Schnellstart</h2>
+<ol class="steps">
+  <li>Das Gerät startet eingeschaltet (<span class="k">POWER</span>-Lampe leuchtet). Kanal I (CH1) zeigt den Sinus von Generatorausgang 1, Kanal II (CH2) das Rechteck von Ausgang 2.</li>
+  <li>Ist keine Leuchtspur zu sehen: Trigger-<span class="k">MODE</span> auf <span class="k">AUTO</span> stellen, prüfen, dass die Eingangskopplung (<span class="k">COUPLING</span>) nicht auf <span class="k">GND</span> steht, die Helligkeit (<span class="k">INTENSITY</span>) erhöhen und die Spur mit <span class="k">POSITION</span> zurückholen.</li>
+  <li>Den Ablenkkoeffizienten (<span class="k">VOLTS/DIV</span>) so wählen, dass das Signal vier bis sechs Teile hoch ist, und den Zeitkoeffizienten (<span class="k">A TIME/DIV</span>) so, dass ein bis drei Perioden sichtbar sind.</li>
+  <li>Für ein stehendes Bild die Triggerquelle (<span class="k">SOURCE</span>) auf den Kanal mit dem Signal stellen und den Triggerpegel (<span class="k">LEVEL</span>) drehen, bis die Lampe <span class="k">TRIG'D</span> leuchtet.</li>
+  <li>Die Schaltflächen <em>Presets</em> unter den Geräten stellen typische Messungen mit einem Klick ein; die Messwertkarten zeigen Spitze-Spitze-Wert, Effektivwert, Mittelwert und Frequenz.</li>
+</ol>
+
+<h2 id="de-controls">Bedienung der Elemente</h2>
+<dl class="ctl">
+  <dt>Drehknöpfe</dt><dd>Nach oben oder rechts ziehen dreht im Uhrzeigersinn (mit gedrückter Umschalttaste fein), außerdem Mausrad oder Pfeiltasten, wenn der Knopf den Fokus hat. Ein Klick auf eine Skalenbeschriftung dreht den Knopf dorthin; ein Doppelklick stellt die Grundeinstellung wieder her. Beim Drehen zeigt ein kleines Schild den genauen Wert.</dd>
+  <dt>Drehschalter</dt><dd><span class="k">VOLTS/DIV</span>, <span class="k">A TIME/DIV</span>, <span class="k">B TIME/DIV</span> und <span class="k">WAVEFORM</span> rasten in festen Stellungen ein. Die gewählte Stellung ist rot gedruckt.</dd>
+  <dt>Kippschalter</dt><dd>Ein Klick auf eine Stellung im Schlitz bringt den Hebel dorthin; ein Klick auf den Hebel selbst bewegt ihn um eine Stellung. Der Hebel kann auch gezogen oder mit Mausrad, Pfeiltasten oder einem Klick auf die Beschriftung gestellt werden. Eine durchgestrichene Beschriftung bedeutet, dass diese Stellung in diesem Browser oder dieser Ansicht nicht verfügbar ist; der Grund erscheint in einer Sprechblase unter dem Schalter.</dd>
+  <dt>Tasten</dt><dd>Rastende Tasten (<span class="k">MODE</span>, <span class="k">×10</span>, <span class="k">POWER</span>) bleiben gedrückt und lassen ihre Lampe leuchten. <span class="k">SINGLE RESET</span> ist ein Taster.</dd>
+</dl>
+
+<h2 id="de-display">Bildröhre und Strahl</h2>
+<dl class="ctl">
+  <dt><span class="k">INTENSITY</span></dt><dd>Helligkeit des Strahls. Nicht heller als nötig einstellen: bei einer echten Elektronenstrahlröhre kann ein heller, stillstehender Leuchtpunkt den Leuchtstoff einbrennen.</dd>
+  <dt><span class="k">FOCUS</span></dt><dd>Schärfe der Leuchtspur (scharf — mittel — unscharf).</dd>
+  <dt><span class="k">PERSISTENCE</span></dt><dd>Nachgebildete Nachleuchtdauer des Leuchtstoffs (0–97 %). Langes Nachleuchten zeigt langsame Ablenkungen und die Streuung verrauschter Signale; kurzes Nachleuchten ergibt ein klares Bild schnell veränderlicher Signale.</dd>
+  <dt><span class="k">POWER</span></dt><dd>Ein- und Ausschalter des Oszilloskops; beim Ausschalten verlischt die Leuchtspur langsam.</dd>
+  <dt><span class="k">Z INPUT</span></dt><dd>Z-Eingang (Helligkeitsmodulation). Quelle: <span class="k">OFF</span>, <span class="k">GEN 1</span>, <span class="k">GEN 2</span> oder <span class="k">AUDIO</span> (Monosumme des Audioeingangs). 0 V lässt die Helligkeit unverändert, +5 V dunkelt den Strahl vollständig, negative Spannung hellt ihn auf (bei −5 V bis zur doppelten Helligkeit). Wirkt im Yt- und im XY-Betrieb.</dd>
+</dl>
+<p>Das Raster hat 10 × 8 Teile (Div) mit einer Unterteilung von 0,2 Teilen auf den Mittellinien. Die gestrichelten Linien <em>0 %</em>, <em>10</em>, <em>90</em> und <em>100</em> liegen 2,5 und 2 Teile über und unter der Mitte; sie dienen der Anstiegszeitmessung (siehe <a href="tips.html#de-rise" data-tips>Messtipps</a>).</p>
+
+<h2 id="de-vertical">Vertikalteil (CH1, CH2)</h2>
+<dl class="ctl">
+  <dt><span class="k">VOLTS/DIV</span></dt><dd>Ablenkkoeffizient, 10 mV/Div bis 5 V/Div in der Folge 1-2-5. Dunkelblaue Werte sind Volt, hellblaue Millivolt. Im Uhrzeigersinn wird der Kanal empfindlicher.</dd>
+  <dt><span class="k">POSITION ↕</span></dt><dd>Vertikale Strahllage, ±4 Teile.</dd>
+  <dt><span class="k">COUPLING</span></dt><dd>Eingangskopplung. <span class="k">DC</span>: das ganze Signal mit Gleichspannungsanteil. <span class="k">AC</span>: der Gleichspannungsanteil (Mittelwert) wird abgetrennt. <span class="k">GND</span>: der Eingang ist abgetrennt und auf Masse gelegt; die Spur zeigt die 0-V-Bezugslinie — damit vor jeder Messung die Nulllinie einstellen.</dd>
+  <dt><span class="k">INPUT</span></dt><dd>Signalquelle des Kanals: <span class="k">GEN 1</span> oder <span class="k">GEN 2</span> (beliebiger Generatorausgang; beide Kanäle dürfen denselben Ausgang zeigen), <span class="k">AUDIO IN</span> (Mikrofon- oder Line-Eingang) oder <span class="k">AUDIO OUT</span> (der vom Computer wiedergegebene Ton). Siehe <a href="#de-audio">Audioeingänge</a>.</dd>
+  <dt><span class="k">MODE</span></dt><dd><span class="k">CH1</span> oder <span class="k">CH2</span> allein; <span class="k">DUAL</span>: Zweikanalbetrieb; <span class="k">ADD</span>: Additionsbetrieb, die algebraische Summe CH1 + CH2, dargestellt mit <span class="k">VOLTS/DIV</span> und <span class="k">POSITION</span> von CH1; <span class="k">X-Y</span>: XY-Betrieb, CH1 lenkt horizontal (X), CH2 vertikal (Y) ab.</dd>
+</dl>
+<p>Im <span class="k">X-Y</span>-Betrieb verschiebt <span class="k">POSITION ↔</span> die X-Ablenkung, und <span class="k">A TIME/DIV</span> bestimmt, welcher Zeitabschnitt der Signale gezeichnet wird (das Zehnfache des Werts) — so wählen, dass mindestens eine ganze Periode des langsameren Signals gezeichnet wird. Die Triggerung ist im XY-Betrieb ohne Wirkung.</p>
+
+<h2 id="de-horizontal">Horizontalteil (Zeitbasis)</h2>
+<dl class="ctl">
+  <dt><span class="k">A TIME/DIV</span></dt><dd>Hauptzeitbasis (Zeitkoeffizient), 1 µs/Div bis 0,5 s/Div in der Folge 1-2-5; dunkelblaue Werte sind Millisekunden, hellblaue Mikrosekunden. Im Uhrzeigersinn schneller. Ab 20 ms/Div und langsamer sieht man den Leuchtpunkt in Echtzeit über den Schirm laufen.</dd>
+  <dt><span class="k">B TIME/DIV</span></dt><dd>Verzögerte Zeitbasis (B-Zeitbasis). Sie kann nicht langsamer als A eingestellt werden; der Knopf bleibt bei der A-Einstellung stehen.</dd>
+  <dt><span class="k">DELAY</span></dt><dd>Verzögerungszeit: Die B-Ablenkung beginnt so viele A-Teile (0–10) nach dem Beginn der A-Ablenkung. Beim Drehen zeigt das Schild die Verzögerung auch als Zeit.</dd>
+  <dt><span class="k">POSITION ↔</span></dt><dd>Horizontale Strahllage, ±5 Teile. Nach rechts verschoben, wird auch ein Teil des Signals vor dem Triggerpunkt sichtbar. (Ein echtes Analogoszilloskop zeigt dort dank seiner Verzögerungsleitung nur wenige Nanosekunden; die Simulation kann mehr zeigen.)</dd>
+  <dt><span class="k">DISPLAY</span></dt><dd><span class="k">A</span>: Hauptablenkung. <span class="k">A INT</span>: A hellgetastet durch B — der Abschnitt, den B zeigen wird, ist aufgehellt, der Rest abgedunkelt. <span class="k">B</span>: nur die verzögerte Ablenkung, also der aufgehellte Abschnitt über den ganzen Schirm gedehnt.</dd>
+  <dt><span class="k">×10</span> (MAGNIFIER)</dt><dd>X-Dehnung: dehnt das mittlere Teil horizontal auf das Zehnfache; der wirksame Zeitkoeffizient ist der <span class="k">TIME/DIV</span>-Wert geteilt durch 10. Wirkt bei A, A INT und B.</dd>
+</dl>
+
+<h2 id="de-trigger">Triggerung</h2>
+<p>Die Triggerung startet jede Ablenkung am gleichen Punkt des Signals, sodass die Ablenkungen übereinanderliegen und das Bild steht. Der Triggerpunkt ist der linke Schirmrand (bei <span class="k">POSITION ↔</span> in Mittelstellung).</p>
+<dl class="ctl">
+  <dt><span class="k">LEVEL</span></dt><dd>Triggerpegel, ±4 Teile auf der Skala des Quellkanals (bei <span class="k">EXT</span> 0,5 V je Skalenteil, also ±2 V). Bei <span class="k">LINE</span> ohne Wirkung.</dd>
+  <dt><span class="k">SOURCE</span></dt><dd>Triggerquelle: <span class="k">CH1</span>, <span class="k">CH2</span>, <span class="k">EXT</span> (externe Triggerung) oder <span class="k">LINE</span> (Netztriggerung). Beim echten Gerät synchronisiert LINE auf die 50/60-Hz-Netzfrequenz, um netzfrequente Signale wie Brummen zu beobachten; hier ist es ein interner 50-Hz-Bezug, vor allem der Vollständigkeit halber.</dd>
+  <dt><span class="k">SLOPE</span></dt><dd>Triggerflanke: <span class="k">+ ↑</span> steigende Flanke, <span class="k">− ↓</span> fallende Flanke.</dd>
+  <dt><span class="k">MODE</span></dt><dd><span class="k">AUTO</span>: automatische Triggerung — ohne gültiges Triggersignal läuft die Zeitbasis frei, sodass immer eine Spur (Nulllinie) sichtbar ist; am besten für unbekannte Signale. <span class="k">NORM</span>: Normaltriggerung — eine Ablenkung erfolgt nur nach einem Triggerereignis; ohne Trigger bleibt der Schirm dunkel. <span class="k">SINGLE</span>: Einzelablenkung — siehe unten.</dd>
+  <dt><span class="k">SINGLE RESET</span>, <span class="k">READY</span></dt><dd>In der Stellung <span class="k">SINGLE</span> macht RESET die Zeitbasis startbereit, die Lampe READY leuchtet. Nur ein Triggerereignis nach dem Scharfschalten startet die Ablenkung; nach einer Ablenkung ist die Zeitbasis gesperrt und READY verlischt, bis RESET erneut gedrückt wird.</dd>
+  <dt><span class="k">EXT TRIG IN</span></dt><dd>Quelle des externen Triggersignals: <span class="k">GEN 1</span>, <span class="k">GEN 2</span> oder <span class="k">AUDIO</span> (Monosumme des Audioeingangs).</dd>
+  <dt><span class="k">TRIG'D</span></dt><dd>Leuchtet, solange die Zeitbasis getriggert wird.</dd>
+</dl>
+<div class="note"><p>Unterschied zum echten Gerät: Auf einer gewöhnlichen Elektronenstrahlröhre leuchtet eine Einzelablenkung nur einmal auf und verlischt mit dem Leuchtstoff; sie musste fotografiert werden. Das OSC-2 behält die aufgenommene Ablenkung wie ein Speicheroszilloskop auf dem Schirm; Drehen an den Knöpfen löscht sie nicht, nur <span class="k">SINGLE RESET</span> oder ein Wechsel der Betriebsart.</p></div>
+
+<h2 id="de-generator">Funktionsgenerator FG-2</h2>
+<p>Zwei unabhängige Ausgänge, <span class="k">OUT 1</span> und <span class="k">OUT 2</span>. Ihre Signale gelangen über die Schalter <span class="k">INPUT</span>, <span class="k">Z INPUT</span> und <span class="k">EXT TRIG IN</span> zum Oszilloskop; die Buchsen <span class="k">OUTPUT</span> sind nur ein Sinnbild dieser Verbindung.</p>
+<dl class="ctl">
+  <dt><span class="k">WAVEFORM</span></dt><dd>Kurvenform: Sinus, Rechteck, Impuls (Tastverhältnis 20 %, unipolar von 0 V bis zur eingestellten Amplitude), Dreieck, Sägezahn, Rauschen (bandbegrenzt auf etwa das 20-Fache der eingestellten Frequenz).</dd>
+  <dt><span class="k">FREQUENCY</span></dt><dd>0,5 Hz bis 100 kHz, logarithmische Skala.</dd>
+  <dt><span class="k">AMPLITUDE</span></dt><dd>0–10 V Spitze-Spitze (Vss).</dd>
+  <dt><span class="k">OFFSET</span></dt><dd>Gleichspannungsoffset, −5 V bis +5 V.</dd>
+  <dt><span class="k">PHASE</span></dt><dd>0–360°. Beide Ausgänge haben denselben Zeitnullpunkt; bei gleicher Frequenz ist die Phasendifferenz der Ausgänge daher die Differenz der beiden PHASE-Einstellungen.</dd>
+  <dt><span class="k">AUDIO (LEFT/RIGHT)</span></dt><dd>Gibt <span class="k">OUT 1</span> zusätzlich auf den linken und <span class="k">OUT 2</span> auf den rechten Lautsprecher- bzw. Kopfhörerkanal. Der Gleichspannungsoffset wird nicht wiedergegeben.</dd>
+  <dt><span class="k">VOLUME</span></dt><dd>Nur die Lautstärke des Audioausgangs; das Signal auf dem Oszilloskop ändert sich nicht. Bei 100 % entsprechen 10 Vss der digitalen Vollaussteuerung; lautere Signale werden begrenzt.</dd>
+</dl>
+<p>Die rote Anzeige zeigt Kurvenform, Frequenz, Amplitude und Offset beider Ausgänge; ♪ kennzeichnet einen Ausgang, der auch auf die Soundkarte geht. Soundkarten geben etwa 20 Hz bis 20 kHz wieder: oberhalb der halben Abtastrate (22 bzw. 24 kHz) wird der Audioausgang durch Aliasing verfälscht, während das Oszilloskop weiterhin das ideale Signal zeigt.</p>
+
+<h2 id="de-audio">Audioeingänge</h2>
+<ul>
+  <li><span class="k">AUDIO IN</span> nutzt den Mikrofon- oder Line-Eingang. Bei einem Stereoeingang geht der linke Kanal auf CH1, der rechte auf CH2.</li>
+  <li><span class="k">AUDIO OUT</span> zeigt den vom Computer wiedergegebenen Ton. Der Browser fragt, welcher Tab oder Bildschirm freigegeben werden soll — dabei <em>Audio teilen</em> ankreuzen. Funktioniert in Chrome und Edge auf dem Desktop, nicht auf Telefonen.</li>
+  <li>Die digitale Vollaussteuerung entspricht ±1 V. Soundkarten sind wechselspannungsgekoppelt und bandbegrenzt (etwa 20 Hz–20 kHz); <span class="k">DC</span>- und <span class="k">AC</span>-Kopplung sehen hier daher gleich aus.</li>
+  <li>Beim ersten Mal fragt der Browser nach der Erlaubnis; Live-Audio erfordert eine sichere (https-)Seite. In eingebetteten Ansichten — etwa der Vorschau in Claude — sind Mikrofon und Bildschirmfreigabe gesperrt: die betroffenen Stellungen sind durchgestrichen. Die Seite auf ihrer eigenen Website (z. B. bei Vercel) öffnen, um sie zu nutzen.</li>
+  <li>Das Oszilloskop speichert etwa 11 Sekunden Audioverlauf; das Bild folgt dem Ton mit der kleinen Latenz der Soundkarte.</li>
+</ul>
+
+<h2 id="de-readings">Presets und Messwerte</h2>
+<p>Die <em>Presets</em> stellen eine vollständige Messung ein: Default, Lissajous 3:2, Beats (Schwebung), Noisy signal (verrauschtes Signal), AC coupling, Z modulation, Delayed sweep (verzögerte Ablenkung), Slow sweep (langsame Ablenkung). Sie setzen die Eingänge auf den Generator zurück, behalten aber die Einstellungen des Audioausgangs.</p>
+<p>Die Messwertkarten werden aus dem gerade sichtbaren Abschnitt berechnet (bei <span class="k">B</span> oder <span class="k">×10</span> aus dem gedehnten Abschnitt): <em>Vpp</em> Spitze-Spitze-Wert, <em>Vrms (AC)</em> Effektivwert des Wechselanteils, <em>Mean</em> Mittelwert (Gleichanteil), <em>Frequency</em> Frequenz (mehr als eine volle Periode auf dem Schirm nötig). Im XY-Betrieb zeigt eine Karte das Frequenzverhältnis fx : fy und die Phasendifferenz der Generatoren.</p>
+
+<h2 id="de-limits">Unterschiede zum echten Analogoszilloskop</h2>
+<ul>
+  <li>Unbegrenzte Bandbreite: Das OSC-2 hat keine eigene Anstiegszeit und keine Bandbreitengrenze. Echte Signale von der Soundkarte sind jedoch durch die Soundkarte begrenzt.</li>
+  <li><span class="k">DUAL</span> zeichnet beide Kanäle gleichzeitig; echte Geräte schalten alternierend (ALT) oder im Chopperbetrieb (CHOP) um.</li>
+  <li>Kein Feinsteller (unkalibrierter Ablenkkoeffizient), keine Holdoff-Zeiteinstellung, keine Strahldrehung, kein Tastkopfabgleich.</li>
+  <li>Die <span class="k">AC</span>-Kopplung ist ideal (keine untere Grenzfrequenz), <span class="k">LINE</span> nutzt einen internen 50-Hz-Bezug, und eine Einzelablenkung bleibt gespeichert.</li>
+</ul>
+</article>
+
+<!-- ======================================================================= РУССКИЙ -->
+<article data-lang="ru" lang="ru" data-title="OSC-2 — руководство по эксплуатации" hidden>
+<header>
+  <h1>Руководство по эксплуатации — осциллограф OSC-2 и функциональный генератор FG-2</h1>
+  <p>OSC-2 моделирует классический аналоговый двухканальный осциллограф с двумя развёртками (основной А и задержанной Б). FG-2 — двухканальный функциональный генератор. Оба работают в браузере; входы осциллографа можно также подключить к звуковой карте компьютера или телефона. Надписи на передней панели, как у большинства приборов, на английском языке; в руководстве каждый орган управления назван точно так, как он подписан на панели.</p>
+</header>
+
+<h2 id="ru-start">Быстрый старт</h2>
+<ol class="steps">
+  <li>Прибор запускается включённым (горит лампа <span class="k">POWER</span>). Канал CH1 показывает синусоиду выхода 1 генератора, канал CH2 — меандр выхода 2.</li>
+  <li>Если луча не видно: установите режим синхронизации <span class="k">MODE</span> в положение <span class="k">AUTO</span>, проверьте, что переключатель входа <span class="k">COUPLING</span> не стоит в положении <span class="k">GND</span>, увеличьте яркость <span class="k">INTENSITY</span> и верните луч ручкой <span class="k">POSITION</span>.</li>
+  <li>Выберите коэффициент отклонения <span class="k">VOLTS/DIV</span> так, чтобы сигнал занимал по вертикали четыре–шесть делений, а коэффициент развёртки <span class="k">A TIME/DIV</span> — так, чтобы были видны один–три периода.</li>
+  <li>Для неподвижного изображения выберите источник синхронизации <span class="k">SOURCE</span> — канал с сигналом — и вращайте ручку уровня синхронизации <span class="k">LEVEL</span>, пока не загорится лампа <span class="k">TRIG'D</span>.</li>
+  <li>Кнопки <em>Presets</em> под приборами одним нажатием настраивают типовые измерения; карточки показаний показывают размах, среднеквадратичное значение, среднее значение и частоту.</li>
+</ol>
+
+<h2 id="ru-controls">Работа с органами управления</h2>
+<dl class="ctl">
+  <dt>Ручки</dt><dd>Перетаскивание вверх или вправо поворачивает ручку по часовой стрелке (с нажатой клавишей Shift — плавно); также работают колесо мыши и клавиши со стрелками, если ручка в фокусе. Щелчок по отметке шкалы поворачивает ручку к ней; двойной щелчок возвращает исходное положение. При вращении небольшая подпись показывает точное значение.</dd>
+  <dt>Галетные переключатели</dt><dd><span class="k">VOLTS/DIV</span>, <span class="k">A TIME/DIV</span>, <span class="k">B TIME/DIV</span> и <span class="k">WAVEFORM</span> переключаются по фиксированным положениям. Выбранное положение выделено красным.</dd>
+  <dt>Тумблеры</dt><dd>Щелчок по положению в прорези переводит рычажок туда; щелчок по самому рычажку перемещает его на одно положение. Рычажок можно также перетащить или переключить колесом мыши, клавишами со стрелками или щелчком по надписи. Зачёркнутая надпись означает, что это положение недоступно в данном браузере или режиме просмотра; причина появляется в подсказке под тумблером.</dd>
+  <dt>Кнопки</dt><dd>Кнопки с фиксацией (<span class="k">MODE</span>, <span class="k">×10</span>, <span class="k">POWER</span>) остаются нажатыми и зажигают свою лампу. <span class="k">SINGLE RESET</span> — кнопка без фиксации.</dd>
+</dl>
+
+<h2 id="ru-display">Электронно-лучевая трубка</h2>
+<dl class="ctl">
+  <dt><span class="k">INTENSITY</span></dt><dd>Яркость луча. Не устанавливайте её больше необходимого: на настоящей ЭЛТ яркое неподвижное пятно может прожечь люминофор.</dd>
+  <dt><span class="k">FOCUS</span></dt><dd>Фокусировка луча (резко — средне — размыто).</dd>
+  <dt><span class="k">PERSISTENCE</span></dt><dd>Моделируемое послесвечение люминофора (0–97 %). Длительное послесвечение помогает наблюдать медленные развёртки и разброс зашумлённых сигналов; короткое даёт чёткое изображение быстро меняющихся сигналов.</dd>
+  <dt><span class="k">POWER</span></dt><dd>Включение и выключение осциллографа; при выключении изображение постепенно гаснет.</dd>
+  <dt><span class="k">Z INPUT</span></dt><dd>Вход Z — модуляция яркости. Источник: <span class="k">OFF</span>, <span class="k">GEN 1</span>, <span class="k">GEN 2</span> или <span class="k">AUDIO</span> (сумма каналов звукового входа). 0 В не меняет яркость, +5 В полностью гасит луч, отрицательное напряжение увеличивает яркость (до двукратной при −5 В). Действует в режимах Y-T и X-Y.</dd>
+</dl>
+<p>Масштабная сетка имеет 10 × 8 больших делений, на центральных линиях — малые деления через 0,2 деления. Штриховые линии с отметками <em>0 %</em>, <em>10</em>, <em>90</em> и <em>100</em> находятся на 2,5 и 2 деления выше и ниже центра; они служат для измерения времени нарастания (см. <a href="tips.html#ru-rise" data-tips>Советы по измерениям</a>).</p>
+
+<h2 id="ru-vertical">Канал вертикального отклонения (CH1, CH2)</h2>
+<dl class="ctl">
+  <dt><span class="k">VOLTS/DIV</span></dt><dd>Коэффициент отклонения, от 10 мВ/дел до 5 В/дел по ряду 1-2-5. Тёмно-синие значения — в вольтах, светло-синие — в милливольтах. Поворот по часовой стрелке увеличивает чувствительность.</dd>
+  <dt><span class="k">POSITION ↕</span></dt><dd>Смещение луча по вертикали, ±4 деления.</dd>
+  <dt><span class="k">COUPLING</span></dt><dd>Вид входа. <span class="k">DC</span> — открытый вход: весь сигнал вместе с постоянной составляющей. <span class="k">AC</span> — закрытый вход: постоянная составляющая (среднее значение) отделяется. <span class="k">GND</span> — вход отключён и заземлён; луч показывает линию 0 В — по ней перед измерением устанавливают нулевой уровень.</dd>
+  <dt><span class="k">INPUT</span></dt><dd>Источник сигнала канала: <span class="k">GEN 1</span> или <span class="k">GEN 2</span> (любой выход генератора; оба канала могут показывать один и тот же выход), <span class="k">AUDIO IN</span> (микрофонный или линейный вход) или <span class="k">AUDIO OUT</span> (звук, воспроизводимый компьютером). См. <a href="#ru-audio">Звуковые входы</a>.</dd>
+  <dt><span class="k">MODE</span></dt><dd><span class="k">CH1</span> или <span class="k">CH2</span> — одноканальный режим; <span class="k">DUAL</span> — двухканальный режим; <span class="k">ADD</span> — алгебраическое сложение CH1 + CH2, отображаемое с коэффициентом отклонения и смещением канала CH1; <span class="k">X-Y</span> — CH1 отклоняет луч по горизонтали (X), CH2 — по вертикали (Y).</dd>
+</dl>
+<p>В режиме <span class="k">X-Y</span> ручка <span class="k">POSITION ↔</span> смещает отклонение по X, а <span class="k">A TIME/DIV</span> задаёт длительность отображаемого отрезка сигналов (десятикратное значение) — выберите его так, чтобы был показан хотя бы один полный период более медленного сигнала. Синхронизация в режиме X-Y не используется.</p>
+
+<h2 id="ru-horizontal">Канал горизонтального отклонения (развёртка)</h2>
+<dl class="ctl">
+  <dt><span class="k">A TIME/DIV</span></dt><dd>Основная развёртка, коэффициент развёртки от 1 мкс/дел до 0,5 с/дел по ряду 1-2-5; тёмно-синие значения — миллисекунды, светло-синие — микросекунды. По часовой стрелке развёртка быстрее. При 20 мс/дел и медленнее видно, как светящееся пятно движется по экрану в реальном времени.</dd>
+  <dt><span class="k">B TIME/DIV</span></dt><dd>Задержанная развёртка (Б). Её нельзя установить медленнее основной; ручка останавливается на значении развёртки А.</dd>
+  <dt><span class="k">DELAY</span></dt><dd>Время задержки: развёртка Б начинается через указанное число делений развёртки А (0–10) после начала развёртки А. При вращении подпись показывает задержку и во времени.</dd>
+  <dt><span class="k">POSITION ↔</span></dt><dd>Смещение по горизонтали, ±5 делений. При смещении вправо становится видна и часть сигнала до момента запуска. (Настоящий аналоговый осциллограф благодаря линии задержки показывает там лишь несколько наносекунд; модель может показать больше.)</dd>
+  <dt><span class="k">DISPLAY</span></dt><dd><span class="k">A</span> — основная развёртка. <span class="k">A INT</span> — развёртка А с подсветом участка, который покажет развёртка Б (остальное затемнено). <span class="k">B</span> — только задержанная развёртка, то есть подсвеченный участок, растянутый на весь экран.</dd>
+  <dt><span class="k">×10</span> (MAGNIFIER)</dt><dd>Растяжка развёртки: среднее деление растягивается по горизонтали в десять раз; действующий коэффициент развёртки равен значению <span class="k">TIME/DIV</span>, делённому на 10. Работает с A, A INT и B.</dd>
+</dl>
+
+<h2 id="ru-trigger">Синхронизация (запуск развёртки)</h2>
+<p>Синхронизация запускает каждый ход развёртки в одной и той же точке сигнала, поэтому последовательные развёртки совпадают и изображение неподвижно. Точка запуска — левый край экрана (при <span class="k">POSITION ↔</span> в среднем положении).</p>
+<dl class="ctl">
+  <dt><span class="k">LEVEL</span></dt><dd>Уровень синхронизации, ±4 деления по шкале канала-источника (для <span class="k">EXT</span> 0,5 В на деление шкалы, т. е. ±2 В). Для <span class="k">LINE</span> не используется.</dd>
+  <dt><span class="k">SOURCE</span></dt><dd>Источник синхронизации: <span class="k">CH1</span>, <span class="k">CH2</span> (внутренняя), <span class="k">EXT</span> (внешняя) или <span class="k">LINE</span> (от сети). В настоящем приборе синхронизация от сети привязывает развёртку к частоте сети 50/60 Гц, чтобы наблюдать связанные с сетью сигналы, например фон; здесь это внутренний опорный сигнал 50 Гц, введённый главным образом для полноты.</dd>
+  <dt><span class="k">SLOPE</span></dt><dd>Полярность синхронизации: <span class="k">+ ↑</span> — по нарастанию (по фронту), <span class="k">− ↓</span> — по спаду.</dd>
+  <dt><span class="k">MODE</span></dt><dd><span class="k">AUTO</span> — автоколебательный режим: при отсутствии синхронизирующего сигнала развёртка работает непрерывно, поэтому линия луча видна всегда; лучше всего для неизвестных сигналов. <span class="k">NORM</span> — ждущий режим: развёртка запускается только синхронизирующим сигналом; без него экран остаётся тёмным. <span class="k">SINGLE</span> — однократный режим, см. ниже.</dd>
+  <dt><span class="k">SINGLE RESET</span>, <span class="k">READY</span></dt><dd>В положении <span class="k">SINGLE</span> кнопка RESET подготавливает развёртку к запуску, загорается лампа READY. Развёртку запускает только сигнал синхронизации, пришедший после подготовки; после одного хода развёртка блокируется и READY гаснет до следующего нажатия RESET.</dd>
+  <dt><span class="k">EXT TRIG IN</span></dt><dd>Источник внешнего сигнала синхронизации: <span class="k">GEN 1</span>, <span class="k">GEN 2</span> или <span class="k">AUDIO</span> (сумма каналов звукового входа).</dd>
+  <dt><span class="k">TRIG'D</span></dt><dd>Горит, пока развёртка синхронизирована.</dd>
+</dl>
+<div class="note"><p>Отличие от настоящего прибора: на обычной ЭЛТ однократная развёртка вспыхивает один раз и гаснет вместе с люминофором, поэтому её фотографировали. OSC-2 сохраняет записанную развёртку на экране, как запоминающий осциллограф; вращение ручек её не стирает — стирает только <span class="k">SINGLE RESET</span> или смена режима.</p></div>
+
+<h2 id="ru-generator">Функциональный генератор FG-2</h2>
+<p>Два независимых выхода, <span class="k">OUT 1</span> и <span class="k">OUT 2</span>. Их сигналы поступают на осциллограф через переключатели <span class="k">INPUT</span>, <span class="k">Z INPUT</span> и <span class="k">EXT TRIG IN</span>; гнёзда <span class="k">OUTPUT</span> лишь условно изображают это соединение.</p>
+<dl class="ctl">
+  <dt><span class="k">WAVEFORM</span></dt><dd>Форма сигнала: синусоида, меандр, импульсы (коэффициент заполнения 20 %, однополярные — от 0 В до установленной амплитуды), треугольник, пила, шум (с полосой примерно до 20-кратной установленной частоты).</dd>
+  <dt><span class="k">FREQUENCY</span></dt><dd>От 0,5 Гц до 100 кГц, логарифмическая шкала.</dd>
+  <dt><span class="k">AMPLITUDE</span></dt><dd>Размах 0–10 В (двойная амплитуда, Vpp).</dd>
+  <dt><span class="k">OFFSET</span></dt><dd>Постоянное смещение от −5 В до +5 В.</dd>
+  <dt><span class="k">PHASE</span></dt><dd>0–360°. Оба выхода имеют общее начало отсчёта времени, поэтому при равных частотах сдвиг фаз между выходами равен разности двух установок PHASE.</dd>
+  <dt><span class="k">AUDIO (LEFT/RIGHT)</span></dt><dd>Дополнительно подаёт <span class="k">OUT 1</span> на левый, а <span class="k">OUT 2</span> — на правый канал громкоговорителя или наушников. Постоянное смещение не воспроизводится.</dd>
+  <dt><span class="k">VOLUME</span></dt><dd>Только громкость звукового выхода; сигнал на осциллографе не меняется. При 100 % размах 10 В соответствует полной цифровой шкале; более громкие сигналы ограничиваются.</dd>
+</dl>
+<p>Красный индикатор показывает форму сигнала, частоту, размах и смещение обоих выходов; знак ♪ отмечает выход, подаваемый и на звуковую карту. Звуковые карты воспроизводят примерно 20 Гц–20 кГц: выше половины частоты дискретизации (22 или 24 кГц) звуковой выход искажается наложением спектров (алиасингом), хотя осциллограф по-прежнему показывает идеальный сигнал.</p>
+
+<h2 id="ru-audio">Звуковые входы</h2>
+<ul>
+  <li><span class="k">AUDIO IN</span> использует микрофонный или линейный вход. При стереовходе левый канал подаётся на CH1, правый — на CH2.</li>
+  <li><span class="k">AUDIO OUT</span> показывает звук, воспроизводимый компьютером. Браузер спросит, какую вкладку или экран показать, — отметьте <em>Поделиться звуком</em>. Работает в Chrome и Edge на компьютере, на телефонах — нет.</li>
+  <li>Полная цифровая шкала соответствует ±1 В. Звуковые карты имеют закрытый вход и ограниченную полосу (примерно 20 Гц–20 кГц), поэтому <span class="k">DC</span> и <span class="k">AC</span> здесь выглядят одинаково.</li>
+  <li>При первом использовании браузер запрашивает разрешение; для живого звука нужна защищённая (https) страница. Во встроенном просмотре — например, в предпросмотре внутри Claude — микрофон и показ экрана заблокированы: соответствующие положения зачёркнуты. Чтобы ими пользоваться, откройте страницу на её собственном сайте (например, на Vercel).</li>
+  <li>Осциллограф хранит около 11 секунд звука; изображение следует за звуком с небольшой задержкой звуковой карты.</li>
+</ul>
+
+<h2 id="ru-readings">Предустановки и показания</h2>
+<p><em>Presets</em> настраивают измерение целиком: Default (исходное), Lissajous 3:2 (фигура Лиссажу 3:2), Beats (биения), Noisy signal (зашумлённый сигнал), AC coupling (закрытый вход), Z modulation (модуляция яркости), Delayed sweep (задержанная развёртка), Slow sweep (медленная развёртка). Они возвращают входы на генератор, но сохраняют настройки звукового выхода.</p>
+<p>Карточки показаний рассчитываются по участку, видимому на экране (в режиме <span class="k">B</span> или с <span class="k">×10</span> — по растянутому участку): <em>Vpp</em> — размах, <em>Vrms (AC)</em> — среднеквадратичное значение переменной составляющей, <em>Mean</em> — среднее значение (постоянная составляющая), <em>Frequency</em> — частота (на экране нужно больше одного полного периода). В режиме X-Y карточка показывает отношение частот fx : fy и сдвиг фаз генераторов.</p>
+
+<h2 id="ru-limits">Отличия от настоящего аналогового осциллографа</h2>
+<ul>
+  <li>Неограниченная полоса пропускания: у OSC-2 нет собственного времени нарастания и ограничения полосы. Реальные сигналы со звуковой карты, однако, ограничены самой звуковой картой.</li>
+  <li><span class="k">DUAL</span> рисует оба канала одновременно; настоящие приборы переключают каналы поочерёдно (ALT) или прерывисто (CHOP).</li>
+  <li>Нет плавной (некалиброванной) регулировки коэффициента отклонения, регулировки задержки повторного запуска (holdoff), поворота линии развёртки и компенсации пробника.</li>
+  <li>Закрытый вход <span class="k">AC</span> идеален (без нижней граничной частоты), <span class="k">LINE</span> использует внутренний опорный сигнал 50 Гц, а однократная развёртка сохраняется на экране.</li>
+</ul>
+</article>
+
+<!-- ======================================================================= MAGYAR -->
+<article data-lang="hu" lang="hu" data-title="OSC-2 kezelési útmutató" hidden>
+<header>
+  <h1>Kezelési útmutató — OSC-2 oszcilloszkóp és FG-2 függvénygenerátor</h1>
+  <p>Az OSC-2 egy klasszikus, analóg kétcsatornás oszcilloszkópot modellez, két időalappal (A fő- és B késleltetett időalap). Az FG-2 kétcsatornás függvénygenerátor. Mindkettő böngészőben fut; az oszcilloszkóp bemenetei a számítógép vagy a telefon hangkártyájára is kapcsolhatók. Az előlap feliratai, mint a legtöbb műszeren, angolok; az útmutató minden kezelőszervet pontosan úgy nevez meg, ahogy az előlapon szerepel.</p>
+</header>
+
+<h2 id="hu-start">Gyors kezdés</h2>
+<ol class="steps">
+  <li>A műszer bekapcsolt állapotban indul (világít a <span class="k">POWER</span> lámpa). A CH1 csatorna a generátor 1. kimenetének szinuszát, a CH2 a 2. kimenet négyszögjelét mutatja.</li>
+  <li>Ha nem látszik jelalak: az indítás üzemmódját (<span class="k">MODE</span>) állítsa <span class="k">AUTO</span> állásba, ellenőrizze, hogy a csatolás (<span class="k">COUPLING</span>) nem <span class="k">GND</span> állásban van, növelje a fényerőt (<span class="k">INTENSITY</span>), és a <span class="k">POSITION</span> gombbal hozza vissza a sugarat.</li>
+  <li>Az eltérítési tényezőt (<span class="k">VOLTS/DIV</span>) úgy válassza meg, hogy a jel függőlegesen négy–hat osztást foglaljon el, az időalapot (<span class="k">A TIME/DIV</span>) pedig úgy, hogy egy–három periódus látsszon.</li>
+  <li>Álló képhez az indítójel forrását (<span class="k">SOURCE</span>) állítsa a jelet vivő csatornára, és az indítási szintet (<span class="k">LEVEL</span>) addig forgassa, amíg ki nem gyullad a <span class="k">TRIG'D</span> lámpa.</li>
+  <li>A műszerek alatti <em>Presets</em> gombok egy kattintással beállítanak egy-egy jellegzetes mérést; a mérőkártyák a csúcstól csúcsig értéket, az effektív értéket, a középértéket és a frekvenciát mutatják.</li>
+</ol>
+
+<h2 id="hu-controls">A kezelőszervek használata</h2>
+<dl class="ctl">
+  <dt>Forgatógombok</dt><dd>Felfelé vagy jobbra húzva az óramutató járásával egyezően fordulnak (Shift lenyomásával finoman); működik az egérgörgő és — ha a gomb ki van jelölve — a nyílbillentyűk is. A skála egy feliratára kattintva a gomb oda fordul; dupla kattintás visszaállítja az alapállást. Forgatás közben kis címke mutatja a pontos értéket.</dd>
+  <dt>Forgókapcsolók</dt><dd>A <span class="k">VOLTS/DIV</span>, az <span class="k">A TIME/DIV</span>, a <span class="k">B TIME/DIV</span> és a <span class="k">WAVEFORM</span> rögzített állásokba kattan. A kiválasztott állás pirossal látszik.</dd>
+  <dt>Karos kapcsolók</dt><dd>A rés egy állására kattintva a kar oda ugrik; magára a karra kattintva egy állást lép. A kar húzható is, és állítható egérgörgővel, nyílbillentyűkkel vagy a feliratra kattintva. Az áthúzott felirat azt jelenti, hogy az az állás ebben a böngészőben vagy nézetben nem érhető el; az okot buborék mutatja a kapcsoló alatt.</dd>
+  <dt>Nyomógombok</dt><dd>A reteszelő gombok (<span class="k">MODE</span>, <span class="k">×10</span>, <span class="k">POWER</span>) benyomva maradnak, és meggyújtják a lámpájukat. A <span class="k">SINGLE RESET</span> nyomógomb nem reteszel.</dd>
+</dl>
+
+<h2 id="hu-display">Képernyő és sugár</h2>
+<dl class="ctl">
+  <dt><span class="k">INTENSITY</span></dt><dd>A sugár fényereje. Ne állítsa a szükségesnél nagyobbra: valódi katódsugárcsövön a fényes, álló folt beégetheti a fényport.</dd>
+  <dt><span class="k">FOCUS</span></dt><dd>A sugár élessége, fókusza (éles — közepes — elmosódott).</dd>
+  <dt><span class="k">PERSISTENCE</span></dt><dd>A fénypor modellezett utánvilágítása (0–97 %). Hosszú utánvilágítással a lassú eltérítés és a zajos jelek szórása jól követhető; rövid utánvilágítással a gyorsan változó jelek képe tiszta.</dd>
+  <dt><span class="k">POWER</span></dt><dd>Az oszcilloszkóp hálózati kapcsolója; kikapcsoláskor a kép lassan elhalványul.</dd>
+  <dt><span class="k">Z INPUT</span></dt><dd>Z-bemenet, fényerő-moduláció. Forrása: <span class="k">OFF</span>, <span class="k">GEN 1</span>, <span class="k">GEN 2</span> vagy <span class="k">AUDIO</span> (a hangbemenet két csatornájának összege). 0 V nem változtat a fényerőn, +5 V teljesen kioltja a sugarat, negatív feszültség világosítja (−5 V-nál kétszeresére). Y-t és X-Y üzemmódban is működik.</dd>
+</dl>
+<p>Az osztásháló 10 × 8 nagy osztásból áll, a középvonalakon 0,2 osztásos beosztással. A <em>0 %</em>, <em>10</em>, <em>90</em> és <em>100</em> jelű szaggatott vonalak a középvonal felett és alatt 2,5, illetve 2 osztásra vannak; a felfutási idő méréséhez valók (lásd <a href="tips.html#hu-rise" data-tips>Mérési tippek</a>).</p>
+
+<h2 id="hu-vertical">Függőleges eltérítés (CH1, CH2)</h2>
+<dl class="ctl">
+  <dt><span class="k">VOLTS/DIV</span></dt><dd>Eltérítési tényező (VOLT/osztás), 10 mV/osztástól 5 V/osztásig, 1-2-5 lépésekben. A sötétkék értékek voltban, a világoskékek millivoltban értendők. Az óramutató irányában a csatorna érzékenyebb.</dd>
+  <dt><span class="k">POSITION ↕</span></dt><dd>A sugár függőleges eltolása, ±4 osztás.</dd>
+  <dt><span class="k">COUPLING</span></dt><dd>Csatolás. <span class="k">DC</span>: egyenáramú csatolás, a teljes jel az egyenösszetevővel együtt. <span class="k">AC</span>: váltakozó áramú csatolás, az egyenösszetevő (középérték) leválik. <span class="k">GND</span>: a bemenet le van választva és földelve; a sugár a 0 V-os vonalat mutatja — mérés előtt ezzel állítsa be a nulla szintet.</dd>
+  <dt><span class="k">INPUT</span></dt><dd>A csatorna jelforrása: <span class="k">GEN 1</span> vagy <span class="k">GEN 2</span> (bármelyik generátorkimenet; a két csatorna ugyanazt is mutathatja), <span class="k">AUDIO IN</span> (mikrofon- vagy vonalbemenet) vagy <span class="k">AUDIO OUT</span> (a számítógép által lejátszott hang). Lásd <a href="#hu-audio">Élő hangbemenetek</a>.</dd>
+  <dt><span class="k">MODE</span></dt><dd><span class="k">CH1</span> vagy <span class="k">CH2</span> önmagában; <span class="k">DUAL</span>: kétcsatornás üzemmód; <span class="k">ADD</span>: a CH1 + CH2 algebrai összege, a CH1 eltérítési tényezőjével és pozíciójával ábrázolva; <span class="k">X-Y</span>: a CH1 vízszintesen (X), a CH2 függőlegesen (Y) téríti el a sugarat.</dd>
+</dl>
+<p><span class="k">X-Y</span> üzemmódban a <span class="k">POSITION ↔</span> az X-eltérítést tolja el, az <span class="k">A TIME/DIV</span> pedig azt adja meg, mekkora időszakaszt rajzol ki a jelekből (az érték tízszeresét) — úgy válassza meg, hogy a lassabb jelnek legalább egy teljes periódusa kirajzolódjon. Az indítás X-Y üzemmódban nem működik.</p>
+
+<h2 id="hu-horizontal">Vízszintes eltérítés (időalap)</h2>
+<dl class="ctl">
+  <dt><span class="k">A TIME/DIV</span></dt><dd>Főidőalap (idő/osztás), 1 µs/osztástól 0,5 s/osztásig, 1-2-5 lépésekben; a sötétkék értékek milliszekundumok, a világoskékek mikroszekundumok. Az óramutató irányában gyorsabb. 20 ms/osztásnál és lassabbnál látszik, ahogy a fényfolt valós időben végigfut a képernyőn.</dd>
+  <dt><span class="k">B TIME/DIV</span></dt><dd>Késleltetett időalap. Nem állítható lassabbra, mint az A; a gomb az A értékénél megáll.</dd>
+  <dt><span class="k">DELAY</span></dt><dd>Késleltetési idő: a B eltérítés ennyi A-osztással (0–10) az A eltérítés kezdete után indul. Forgatás közben a címke a késleltetést időben is mutatja.</dd>
+  <dt><span class="k">POSITION ↔</span></dt><dd>Vízszintes eltolás, ±5 osztás. Jobbra tolva a jelnek az indítási pont előtti része is láthatóvá válik. (Valódi analóg oszcilloszkóp a késleltető vonala révén ott csak néhány nanoszekundumot mutat; a modell többet is.)</dd>
+  <dt><span class="k">DISPLAY</span></dt><dd><span class="k">A</span>: főeltérítés. <span class="k">A INT</span>: az A eltérítés, rajta kiemelve (felfényesítve) az a szakasz, amelyet a B mutatni fog; a többi rész halványabb. <span class="k">B</span>: csak a késleltetett eltérítés, vagyis a kiemelt szakasz a teljes képernyőre nyújtva.</dd>
+  <dt><span class="k">×10</span> (MAGNIFIER)</dt><dd>Vízszintes nyújtás: a középső osztást tízszeresére nyújtja; a tényleges időalap a <span class="k">TIME/DIV</span> értékének tizede. A, A INT és B állásban is működik.</dd>
+</dl>
+
+<h2 id="hu-trigger">Indítás (trigger)</h2>
+<p>Az indítás minden eltérítést a jel ugyanazon pontján indít el, így az egymást követő eltérítések fedik egymást, és a kép áll. Az indítási pont a képernyő bal széle (ha a <span class="k">POSITION ↔</span> középállásban van).</p>
+<dl class="ctl">
+  <dt><span class="k">LEVEL</span></dt><dd>Indítási szint (triggerszint), ±4 osztás a forráscsatorna skáláján (<span class="k">EXT</span> esetén skálaegységenként 0,5 V, azaz ±2 V). <span class="k">LINE</span> állásban nincs szerepe.</dd>
+  <dt><span class="k">SOURCE</span></dt><dd>Az indítójel forrása: <span class="k">CH1</span>, <span class="k">CH2</span> (belső indítás), <span class="k">EXT</span> (külső indítás) vagy <span class="k">LINE</span> (hálózati indítás). Valódi műszeren a hálózati indítás az 50/60 Hz-es hálózathoz szinkronizál, hogy a hálózattal összefüggő jeleket, például a brummot meg lehessen figyelni; itt belső 50 Hz-es referencia, elsősorban a teljesség kedvéért.</dd>
+  <dt><span class="k">SLOPE</span></dt><dd>Indító él: <span class="k">+ ↑</span> felfutó él, <span class="k">− ↓</span> lefutó él.</dd>
+  <dt><span class="k">MODE</span></dt><dd><span class="k">AUTO</span>: automatikusan indított üzemmód — érvényes indítójel nélkül az időalap szabadon fut, így a sugár (alapvonal) mindig látszik; ismeretlen jelekhez ez a legjobb. <span class="k">NORM</span>: normál (indított) üzemmód — eltérítés csak indítójelre indul; nélküle a képernyő sötét marad. <span class="k">SINGLE</span>: egyszeri eltérítés, lásd alább.</dd>
+  <dt><span class="k">SINGLE RESET</span>, <span class="k">READY</span></dt><dd><span class="k">SINGLE</span> állásban a RESET élesíti az időalapot, kigyullad a READY lámpa. Csak az élesítés után érkező indítójel indítja az eltérítést; egy eltérítés után az időalap zárolva marad, a READY kialszik, amíg a RESET-et újra meg nem nyomják.</dd>
+  <dt><span class="k">EXT TRIG IN</span></dt><dd>A külső indítójel forrása: <span class="k">GEN 1</span>, <span class="k">GEN 2</span> vagy <span class="k">AUDIO</span> (a hangbemenet két csatornájának összege).</dd>
+  <dt><span class="k">TRIG'D</span></dt><dd>Akkor világít, amikor az eltérítés indítása megtörténik.</dd>
+</dl>
+<div class="note"><p>Eltérés a valódi műszertől: közönséges katódsugárcsövön az egyszeri eltérítés csak egyszer villan fel, és a fényporral együtt elhalványul, ezért le kellett fényképezni. Az OSC-2 tárolós oszcilloszkóphoz hasonlóan a képernyőn tartja a rögzített eltérítést; a gombok forgatása nem törli, csak a <span class="k">SINGLE RESET</span> vagy az üzemmód váltása.</p></div>
+
+<h2 id="hu-generator">FG-2 függvénygenerátor</h2>
+<p>Két független kimenet: <span class="k">OUT 1</span> és <span class="k">OUT 2</span>. Jeleik az <span class="k">INPUT</span>, a <span class="k">Z INPUT</span> és az <span class="k">EXT TRIG IN</span> kapcsolón keresztül jutnak az oszcilloszkópra; az <span class="k">OUTPUT</span> csatlakozók csak jelképezik ezt a kapcsolatot.</p>
+<dl class="ctl">
+  <dt><span class="k">WAVEFORM</span></dt><dd>Jelalak: szinusz, négyszög, impulzus (20 %-os kitöltési tényező, egypólusú: 0 V-tól a beállított amplitúdóig), háromszög, fűrész, zaj (sávkorlátos, nagyjából a beállított frekvencia 20-szorosáig).</dd>
+  <dt><span class="k">FREQUENCY</span></dt><dd>0,5 Hz-től 100 kHz-ig, logaritmikus skálával.</dd>
+  <dt><span class="k">AMPLITUDE</span></dt><dd>0–10 V csúcstól csúcsig (Vpp).</dd>
+  <dt><span class="k">OFFSET</span></dt><dd>Egyenfeszültségű eltolás (ofszet), −5 V-tól +5 V-ig.</dd>
+  <dt><span class="k">PHASE</span></dt><dd>0–360°. A két kimenet időzítése közös kezdőpontból indul, így egyenlő frekvenciánál a kimenetek fáziskülönbsége a két PHASE-beállítás különbsége.</dd>
+  <dt><span class="k">AUDIO (LEFT/RIGHT)</span></dt><dd>Az <span class="k">OUT 1</span>-et a bal, az <span class="k">OUT 2</span>-t a jobb hangszóró- vagy fejhallgató-csatornára is kiadja. Az egyenfeszültségű eltolás nem hallható.</dd>
+  <dt><span class="k">VOLUME</span></dt><dd>Csak a hangkimenet hangereje; az oszcilloszkópon látott jelet nem változtatja meg. 100 %-on 10 Vpp felel meg a digitális teljes kivezérlésnek; a hangosabb jelet a program levágja.</dd>
+</dl>
+<p>A piros kijelző mindkét kimenet jelalakját, frekvenciáját, amplitúdóját és ofszetjét mutatja; a ♪ jel azt a kimenetet jelöli, amely a hangkártyára is kimegy. A hangkártyák nagyjából 20 Hz és 20 kHz között működnek: a mintavételi frekvencia felénél (22, illetve 24 kHz) magasabb frekvencián a hangkimenetet torzítja az átlapolódás (aliasing), az oszcilloszkóp viszont továbbra is az ideális jelet mutatja.</p>
+
+<h2 id="hu-audio">Élő hangbemenetek</h2>
+<ul>
+  <li>Az <span class="k">AUDIO IN</span> a mikrofon- vagy vonalbemenetet használja. Sztereó bemenetnél a bal csatorna a CH1-re, a jobb a CH2-re kerül.</li>
+  <li>Az <span class="k">AUDIO OUT</span> a számítógép által lejátszott hangot mutatja. A böngésző megkérdezi, melyik lapot vagy képernyőt ossza meg — ilyenkor pipálja be a <em>Hang megosztása</em> lehetőséget. Asztali Chrome-ban és Edge-ben működik, telefonon nem.</li>
+  <li>A digitális teljes kivezérlés ±1 V-nak felel meg. A hangkártyák váltakozó áramú csatolásúak és sávkorlátosak (kb. 20 Hz–20 kHz), ezért itt a <span class="k">DC</span> és az <span class="k">AC</span> csatolás ugyanúgy néz ki.</li>
+  <li>Első használatkor a böngésző engedélyt kér; élő hanghoz biztonságos (https) oldal kell. Beágyazott nézetben — például a Claude-on belüli előnézetben — a mikrofon és a képernyőmegosztás tiltva van: az érintett állások áthúzva jelennek meg. Használatukhoz nyissa meg az oldalt a saját webhelyén (például a Vercelen).</li>
+  <li>Az oszcilloszkóp körülbelül 11 másodpercnyi hangot tárol; a kép a hangkártya kis késleltetésével követi a hangot.</li>
+</ul>
+
+<h2 id="hu-readings">Előbeállítások és mért értékek</h2>
+<p>A <em>Presets</em> gombok egy teljes mérést állítanak be: Default (alapállás), Lissajous 3:2, Beats (lebegés), Noisy signal (zajos jel), AC coupling (AC csatolás), Z modulation (Z-moduláció), Delayed sweep (késleltetett eltérítés), Slow sweep (lassú eltérítés). A bemeneteket visszaállítják a generátorra, a hangkimenet beállításait viszont megtartják.</p>
+<p>A mérőkártyák a képernyőn éppen látható szakaszból számolnak (<span class="k">B</span> állásban vagy <span class="k">×10</span>-zel a nyújtott szakaszból): <em>Vpp</em> csúcstól csúcsig érték, <em>Vrms (AC)</em> a váltakozó összetevő effektív értéke, <em>Mean</em> középérték (egyenösszetevő), <em>Frequency</em> frekvencia (egy teljes periódusnál több kell a képernyőn). X-Y üzemmódban egy kártya a generátorok fx : fy frekvenciaarányát és fáziskülönbségét mutatja.</p>
+
+<h2 id="hu-limits">Eltérések a valódi analóg oszcilloszkóptól</h2>
+<ul>
+  <li>Korlátlan sávszélesség: az OSC-2-nek nincs saját felfutási ideje és sávkorlátja. A hangkártyáról érkező valódi jeleket azonban maga a hangkártya korlátozza.</li>
+  <li>A <span class="k">DUAL</span> a két csatornát egyszerre rajzolja; a valódi műszerek váltakozva (ALT) vagy szaggatva (CHOP) kapcsolnak a csatornák között.</li>
+  <li>Nincs folyamatos (kalibrálatlan) érzékenységállítás, holdoff-szabályozás, sugárelforgatás és mérőfej-kompenzálás.</li>
+  <li>Az <span class="k">AC</span> csatolás ideális (nincs alsó határfrekvencia), a <span class="k">LINE</span> belső 50 Hz-es referenciát használ, az egyszeri eltérítés pedig tárolódik a képernyőn.</li>
+</ul>
+</article>
+
+<!-- ======================================================================= SHARED: TERMINOLOGY + LITERATURE -->
+<section class="shared" aria-labelledby="gloss-h">
+<h2 id="gloss-h"><span data-l="en">Terminology in four languages</span><span data-l="de" hidden>Fachbegriffe in vier Sprachen</span><span data-l="ru" hidden>Термины на четырёх языках</span><span data-l="hu" hidden>Szakkifejezések négy nyelven</span></h2>
+<div class="gloss"><table>
+<thead><tr><th>English</th><th>Deutsch</th><th>Русский</th><th>Magyar</th></tr></thead>
+<tbody>
+<tr><td lang="en">deflection coefficient (VOLTS/DIV)</td><td lang="de">Ablenkkoeffizient</td><td lang="ru">коэффициент отклонения</td><td lang="hu">eltérítési tényező</td></tr>
+<tr><td lang="en">time coefficient, time base (TIME/DIV)</td><td lang="de">Zeitkoeffizient, Zeitbasis</td><td lang="ru">коэффициент развёртки, развёртка</td><td lang="hu">időalap (idő/osztás)</td></tr>
+<tr><td lang="en">division (div)</td><td lang="de">Teil (Div)</td><td lang="ru">деление (дел)</td><td lang="hu">osztás</td></tr>
+<tr><td lang="en">graticule</td><td lang="de">Raster</td><td lang="ru">масштабная сетка</td><td lang="hu">osztásháló</td></tr>
+<tr><td lang="en">input coupling: DC / AC / GND</td><td lang="de">Eingangskopplung: DC / AC / GND</td><td lang="ru">открытый / закрытый вход / вход заземлён</td><td lang="hu">csatolás: DC / AC / GND (földelt)</td></tr>
+<tr><td lang="en">dual-trace mode</td><td lang="de">Zweikanalbetrieb</td><td lang="ru">двухканальный режим</td><td lang="hu">kétcsatornás üzemmód</td></tr>
+<tr><td lang="en">algebraic addition (ADD)</td><td lang="de">Additionsbetrieb</td><td lang="ru">алгебраическое сложение</td><td lang="hu">algebrai összegzés</td></tr>
+<tr><td lang="en">X-Y mode</td><td lang="de">XY-Betrieb</td><td lang="ru">режим X-Y</td><td lang="hu">X-Y üzemmód</td></tr>
+<tr><td lang="en">triggering</td><td lang="de">Triggerung</td><td lang="ru">синхронизация (запуск развёртки)</td><td lang="hu">indítás (triggerelés)</td></tr>
+<tr><td lang="en">trigger level</td><td lang="de">Triggerpegel</td><td lang="ru">уровень синхронизации</td><td lang="hu">indítási szint</td></tr>
+<tr><td lang="en">slope: rising / falling edge</td><td lang="de">Triggerflanke: steigend / fallend</td><td lang="ru">полярность: по нарастанию / по спаду</td><td lang="hu">él: felfutó / lefutó</td></tr>
+<tr><td lang="en">trigger source</td><td lang="de">Triggerquelle</td><td lang="ru">источник синхронизации</td><td lang="hu">az indítójel forrása</td></tr>
+<tr><td lang="en">external trigger</td><td lang="de">externe Triggerung</td><td lang="ru">внешняя синхронизация</td><td lang="hu">külső indítás</td></tr>
+<tr><td lang="en">line trigger</td><td lang="de">Netztriggerung</td><td lang="ru">синхронизация от сети</td><td lang="hu">hálózati indítás</td></tr>
+<tr><td lang="en">auto mode</td><td lang="de">automatische Triggerung</td><td lang="ru">автоколебательный режим</td><td lang="hu">automatikusan indított üzemmód</td></tr>
+<tr><td lang="en">normal mode</td><td lang="de">Normaltriggerung</td><td lang="ru">ждущий режим</td><td lang="hu">normál (indított) üzemmód</td></tr>
+<tr><td lang="en">single sweep</td><td lang="de">Einzelablenkung</td><td lang="ru">однократный режим (однократная развёртка)</td><td lang="hu">egyszeri eltérítés</td></tr>
+<tr><td lang="en">delayed sweep (B)</td><td lang="de">verzögerte Zeitbasis (B)</td><td lang="ru">задержанная развёртка (Б)</td><td lang="hu">késleltetett eltérítés (B)</td></tr>
+<tr><td lang="en">A intensified by B (A INT)</td><td lang="de">A hellgetastet durch B</td><td lang="ru">А с подсветом участка Б</td><td lang="hu">A kiemelt B-szakasszal</td></tr>
+<tr><td lang="en">delay time position</td><td lang="de">Verzögerungszeit</td><td lang="ru">время задержки</td><td lang="hu">késleltetési idő</td></tr>
+<tr><td lang="en">×10 magnifier</td><td lang="de">X-Dehnung ×10</td><td lang="ru">растяжка ×10</td><td lang="hu">×10-es nyújtás</td></tr>
+<tr><td lang="en">Z-axis input, intensity modulation</td><td lang="de">Z-Eingang, Helligkeitsmodulation</td><td lang="ru">вход Z, модуляция яркости</td><td lang="hu">Z-bemenet, fényerő-moduláció</td></tr>
+<tr><td lang="en">intensity, focus</td><td lang="de">Helligkeit, Schärfe</td><td lang="ru">яркость, фокусировка</td><td lang="hu">fényerő, fókusz</td></tr>
+<tr><td lang="en">persistence</td><td lang="de">Nachleuchtdauer</td><td lang="ru">послесвечение</td><td lang="hu">utánvilágítás</td></tr>
+<tr><td lang="en">rise time (10–90 %)</td><td lang="de">Anstiegszeit (10–90 %)</td><td lang="ru">время нарастания (0,1–0,9)</td><td lang="hu">felfutási idő (10–90 %)</td></tr>
+<tr><td lang="en">phase difference</td><td lang="de">Phasendifferenz</td><td lang="ru">сдвиг фаз</td><td lang="hu">fáziskülönbség</td></tr>
+<tr><td lang="en">Lissajous figure</td><td lang="de">Lissajous-Figur</td><td lang="ru">фигура Лиссажу</td><td lang="hu">Lissajous-ábra</td></tr>
+<tr><td lang="en">beat</td><td lang="de">Schwebung</td><td lang="ru">биения</td><td lang="hu">lebegés</td></tr>
+<tr><td lang="en">function generator</td><td lang="de">Funktionsgenerator</td><td lang="ru">функциональный генератор</td><td lang="hu">függvénygenerátor</td></tr>
+<tr><td lang="en">peak-to-peak value (Vpp)</td><td lang="de">Spitze-Spitze-Wert (Vss)</td><td lang="ru">размах</td><td lang="hu">csúcstól csúcsig érték (Vpp)</td></tr>
+<tr><td lang="en">RMS value</td><td lang="de">Effektivwert</td><td lang="ru">среднеквадратичное значение</td><td lang="hu">effektív érték</td></tr>
+<tr><td lang="en">DC offset</td><td lang="de">Gleichspannungsoffset</td><td lang="ru">постоянное смещение</td><td lang="hu">egyenfeszültségű eltolás (ofszet)</td></tr>
+<tr><td lang="en">duty cycle</td><td lang="de">Tastverhältnis</td><td lang="ru">коэффициент заполнения</td><td lang="hu">kitöltési tényező</td></tr>
+</tbody></table></div>
+
+<h2 id="lit-h"><span data-l="en">Literature</span><span data-l="de" hidden>Literatur</span><span data-l="ru" hidden>Литература</span><span data-l="hu" hidden>Szakirodalom</span></h2>
+<ul class="lit">
+  <li lang="en">Tektronix: <a href="https://www.physics.wisc.edu/courses/home/spring2021/407/407_Lab_Instrument_Manuals/Tektronix3022_oscilloscope_manuals/Tektronix%20scope%20primers/XYZsOfOscilloscopes.pdf" target="_blank" rel="noopener">XYZs of Oscilloscopes</a> (primer).</li>
+  <li lang="en">Tektronix: <a href="https://ftp.mirrorservice.org/sites/www.bitsavers.org/test_equipment/tektronix/scope/070-3830-00_2445_Operators_Instruction_Manual_Jul83.pdf" target="_blank" rel="noopener">2445 Oscilloscope — Operators Instruction Manual</a> (070-3830-00, 1983).</li>
+  <li lang="en">Tektronix: <a href="https://docs.ampnuts.ru/eevblog.docs/Tektronix/Tek%20465/Tek_465B/465B%2BDM44_op_with_option-5_070-2756-00.pdf" target="_blank" rel="noopener">465B Oscilloscope — Operators Manual</a> (070-2756-00).</li>
+  <li lang="de">HAMEG: <a href="https://cdn.rohde-schwarz.com/hameg-archive/HM303-6_dt.pdf" target="_blank" rel="noopener">Oszilloskop HM303-6 — Handbuch</a> (deutsch).</li>
+  <li lang="de">HAMEG: <a href="https://etpwww.etp.kit.edu/~simonis/praktikum/Manuals/Oszi-Hameg-HM507.pdf" target="_blank" rel="noopener">Analog/Digital-Oszilloskop HM507 — Handbuch</a> (deutsch).</li>
+  <li lang="ru">Жаров К. К.: <a href="https://edu.study.tusur.ru/publications/8908/download" target="_blank" rel="noopener">Применение электронного осциллографа для исследования электрических сигналов</a>. Томск: ТУСУР, 2018.</li>
+  <li lang="ru"><a href="https://media.belgim.by/sssr/13026-89.pdf" target="_blank" rel="noopener">Осциллограф С1-129 — описание типа средства измерений</a> (Госреестр № 13026-89).</li>
+  <li lang="hu"><a href="https://www.hobbielektronika.hu/forum/getfile.php?id=127593" target="_blank" rel="noopener">A katódsugárcső-oszcilloszkóp, mérések oszcilloszkóppal</a> — fizikai laboratóriumi segédlet; és Radnai R.: <em>Oszcilloszkópos mérések</em>. Budapest: Műszaki Könyvkiadó, 1985.</li>
+</ul>
+</section>
+</div>
+</main>
+<footer><p>OSC-2 · FG-2 — <span data-l="en">simulation for learning; not a measuring instrument.</span><span data-l="de" hidden>Simulation zum Lernen; kein Messgerät.</span><span data-l="ru" hidden>учебная модель, не средство измерений.</span><span data-l="hu" hidden>oktatási célú szimuláció, nem mérőeszköz.</span></p>
+<p class="legal">© 2026 András Sümegi · <span data-l="en">Free software under the <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank" rel="noopener">GNU General Public License v3.0 or later</a>, without any warranty · <a href="LICENSE.txt" target="_blank" rel="noopener">Full licence text</a></span><span data-l="de" hidden>Freie Software unter der <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank" rel="noopener">GNU General Public License v3.0 oder später</a>, ohne jede Gewährleistung · <a href="LICENSE.txt" target="_blank" rel="noopener">Lizenztext</a></span><span data-l="ru" hidden>Свободное программное обеспечение по лицензии <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank" rel="noopener">GNU General Public License версии 3 или более поздней</a>, без каких-либо гарантий · <a href="LICENSE.txt" target="_blank" rel="noopener">Текст лицензии</a></span><span data-l="hu" hidden>Szabad szoftver a <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank" rel="noopener">GNU General Public License 3. vagy későbbi változata</a> alapján, mindenféle garancia nélkül · <a href="LICENSE.txt" target="_blank" rel="noopener">A licenc teljes szövege</a></span></p></footer>
+<script src="manual.js"></script>
+</body>
+</html>
